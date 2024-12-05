@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	//"game/internal/models"
 	"game/internal/usecase"
 	"log"
 	"net/http"
@@ -45,6 +46,28 @@ func AdminMainHandler(usecase.UseCase) gin.HandlerFunc {
 }
 
 
+func AuthPostHandler(use usecase.UseCase) gin.HandlerFunc {
+	return func(g *gin.Context) {
+		username := g.PostForm("username")
+		password := g.PostForm("password")
+
+		if username == "admin" && password == "admin123" {
+			g.Redirect(http.StatusFound, "/admin_main")
+		} else {
+			g.HTML(http.StatusOK, "auth.html", gin.H{
+				"error": "Invalid username or password",
+			})
+		}
+	}
+}
+
+func WelcomeHandler(use usecase.UseCase) gin.HandlerFunc {
+	return func(g *gin.Context) {
+		g.HTML(200, "welcome.html", gin.H{})
+	}
+}
+
+
 
 // handler для обработки соединения между админом и сервером
 func WebSocketHandlerMain(use usecase.UseCase) gin.HandlerFunc {
@@ -55,6 +78,8 @@ func WebSocketHandlerMain(use usecase.UseCase) gin.HandlerFunc {
 			return
 		}		
 		defer conn.Close()
+
+		//admin := &models.Admin{}
 
 		for {
 			messageType, message, err := conn.ReadMessage()
@@ -101,26 +126,5 @@ func WebSocketHandler(use usecase.UseCase) gin.HandlerFunc {
 				break
 			}
 		}
-	}
-}
-
-func AuthPostHandler(use usecase.UseCase) gin.HandlerFunc {
-	return func(g *gin.Context) {
-		username := g.PostForm("username")
-		password := g.PostForm("password")
-
-		if username == "admin" && password == "admin123" {
-			g.Redirect(http.StatusFound, "/admin_main")
-		} else {
-			g.HTML(http.StatusOK, "auth.html", gin.H{
-				"error": "Invalid username or password",
-			})
-		}
-	}
-}
-
-func WelcomeHandler(use usecase.UseCase) gin.HandlerFunc {
-	return func(g *gin.Context) {
-		g.HTML(200, "welcome.html", gin.H{})
 	}
 }

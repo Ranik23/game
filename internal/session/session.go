@@ -1,24 +1,25 @@
 package session
 
 import (
+	"game/internal/models"
 	"time"
 )
 
 
 type PlayerSession struct {
-	ID 		int		`gorm:"primaryKey"`
-	Name 	string	`gorm:""`
-	Role 	string	`gorm:""`
+	Player 			*models.Player
 	CreatedAt 		time.Time
 	FinishedAt 		time.Time
+	Projects		[]models.Project
 }
 
 type GameSession struct {
-	ID 				int					`gorm:"primaryKey"`
-	Players 		[]*PlayerSession	`gorm:""`
-	Finished 		bool				`gorm:""`
-	CreatedAt 		time.Time
-	FinishedAt 		time.Time
-	MaxPlayers  	int
-	CurrentPlayers	int
+	Admin 		*models.Admin
+	Players 	[]*models.Player
+	CreatedAt 	time.Time
+	FinishedAt 	time.Time	
+}
+
+func NewGameSession() *GameSession {
+	return &GameSession{}
 }
