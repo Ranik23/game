@@ -91,13 +91,14 @@
     <script>
         document.getElementById('adminButton').addEventListener('click', function(event) {
             event.preventDefault();
-            document.querySelector('.role-buttons').style.display = 'none';
-            document.querySelector('.login-form').style.display = 'block';
+            // document.querySelector('.role-buttons').style.display = 'none';
+            // document.querySelector('.login-form').style.display = 'block';
+            window.location.href = '/home/role/login'
         });
 
         document.getElementById('guestButton').addEventListener('click', function(event) {
             event.preventDefault();
-            window.location.href = '/auth?role=guest';
+            window.location.href = '/home/role/guest-panel';
         });
     </script>
 </body>

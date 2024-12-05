@@ -42,18 +42,22 @@ func NewServer(config *config.Config,
 func (s *Server) setUpRoutes() {
 
 	s.router.GET("/", func(g *gin.Context) {
-		g.Redirect(http.StatusFound, "/welcome")
+		g.Redirect(http.StatusFound, "/home")
 	})
-	s.router.GET("/auth", handlers.AuthHandler(s.usecase))
-	s.router.POST("/auth", handlers.AuthPostHandler(s.usecase))
-	
-	s.router.GET("/welcome", handlers.WelcomeHandler(s.usecase))
-	s.router.GET("/main", handlers.MainHandler(s.usecase))
-	s.router.GET("/admin_main", handlers.AdminMainHandler(s.usecase))
+
+	s.router.GET("/home", handlers.WelcomeHandler(s.usecase))
+
+	s.router.GET("/home/role", handlers.RoleHandler(s.usecase))
+
+	s.router.GET("/home/role/login", handlers.LoginHandlerGET(s.usecase))
+	s.router.POST("/home/role/login", handlers.LoginHandlerPOST(s.usecase))
+
+	s.router.GET("/home/role/guest-panel", handlers.MainHandler(s.usecase))
+	s.router.GET("/home/role/admin-panel", handlers.AdminMainHandler(s.usecase))
 
 
-	s.router.GET("/ws", handlers.WebSocketHandler(s.usecase))
-	s.router.GET("/wsmain", handlers.WebSocketHandlerMain(s.usecase))
+	s.router.GET("/ws-guest", handlers.WebSocketHandler(s.usecase))
+	s.router.GET("/ws-admin", handlers.WebSocketHandlerMain(s.usecase))
 }
 
 

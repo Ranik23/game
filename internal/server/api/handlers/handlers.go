@@ -16,22 +16,46 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func HomeHandler(use usecase.UseCase) gin.HandlerFunc {
+func WelcomeHandler(use usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
-		g.JSON(200, gin.H{"Message": "Hello, World!"})
+		g.HTML(200, "welcome.html", gin.H{})
 	}
 }
 
-func AuthHandler(use usecase.UseCase) gin.HandlerFunc {
+func RoleHandler(use usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
-		role := g.Query("role")
-		if role == "guest" {
-			g.Redirect(http.StatusFound, "/main")
+		g.HTML(http.StatusAccepted, "auth.html", gin.H{})
+	}
+}
+
+func LoginHandlerGET(use usecase.UseCase) gin.HandlerFunc {
+	return func(g *gin.Context) {
+		g.HTML(http.StatusOK, "login.html", gin.H{})
+	}
+}
+
+func LoginHandlerPOST(use usecase.UseCase) gin.HandlerFunc {
+	return func(c *gin.Context) {
+	
+		username := c.PostForm("username")
+		password := c.PostForm("password")
+
+		log.Println("Username:", username, "Password:", password)
+
+		if username == "admin" && password == "123" {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "login success",
+				"redirect": "/home/role/admin-panel",
+			})
 		} else {
-			g.HTML(http.StatusOK, "auth.html", gin.H{})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "invalid_credentials",
+			})
 		}
 	}
 }
+
+
 
 func MainHandler(use usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
@@ -58,12 +82,6 @@ func AuthPostHandler(use usecase.UseCase) gin.HandlerFunc {
 				"error": "Invalid username or password",
 			})
 		}
-	}
-}
-
-func WelcomeHandler(use usecase.UseCase) gin.HandlerFunc {
-	return func(g *gin.Context) {
-		g.HTML(200, "welcome.html", gin.H{})
 	}
 }
 

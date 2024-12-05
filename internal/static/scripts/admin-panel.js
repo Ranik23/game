@@ -4,7 +4,7 @@ let retryCount = 0;
 
 
 function createWebSocketAdmin() {
-    socket = new WebSocket(`ws://${window.location.host}/wsmain`)
+    socket = new WebSocket(`ws://${window.location.host}/ws-admin`)
     socket.onopen = () => {
         console.log('WebSocket подключен для админа');
         retryCount = 0; // Сбросить счетчик попыток при успешном подключении

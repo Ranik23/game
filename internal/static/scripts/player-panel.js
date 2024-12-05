@@ -3,7 +3,7 @@ const maxRetries = 1;
 let retryCount = 0;
 
 function createWebSocket() {
-  socket = new WebSocket(`ws://${window.location.host}/ws`);
+  socket = new WebSocket(`ws://${window.location.host}/ws-guest`);
 
   socket.onopen = () => {
     console.log('WebSocket подключен');
