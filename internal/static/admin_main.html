@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WebSocket Admin Panel for managing users and sending messages.">
+  <title>WebSocket Admin Panel</title>
+  <style>
+    /* General Styles */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f2f2;
+    }
+    /* Header Styles */
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    /* Main Section Styles */
+    main {
+      padding: 20px;
+    }
+    .admin-section {
+      margin-bottom: 40px;
+    }
+    .admin-section h2 {
+      margin-bottom: 10px;
+    }
+    #message-area {
+      width: 80%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #5cb85c;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #4cae4c;
+    }
+    #messagesOutput, #systemLog {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      min-height: 200px;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    /* Footer Styles */
+    footer {
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>WebSocket Admin Panel</h1>
+  </header>
+
+  <main>
+    <!-- User Management Section -->
+    <section id="user-management" class="admin-section">
+      <h2>Управление пользователями</h2>
+      <button id="kickUserButton">Удалить пользователя</button>
+      <button id="broadcastMessageButton">Широковещательное сообщение</button>
+    </section>
+    <!-- System Log Section -->
+    <section id="system-log" class="admin-section">
+      <h2>Системный лог</h2>
+      <div id="systemLog"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Ваше Имя. Все права защищены.</p>
+  </footer>
+
+  <script src="/static/admin-panel.js" defer></script>
+</body>
+</html>
