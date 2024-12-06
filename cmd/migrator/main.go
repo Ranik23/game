@@ -26,9 +26,9 @@ func main() {
 
     m, err := migrate.New("file://" + os.Getenv("HOME") + "/game/internal/storage/postgres/migrations", dsn)
     if err != nil {
-        log.Fatal(err.Error())
+        log.Fatalf("failed to load the path to migrations: %v", err)
     }
     if err := m.Up(); err != nil {
-        log.Fatal(err)
+        log.Fatalf("failed to migrate: %v", err)
     }
 }
