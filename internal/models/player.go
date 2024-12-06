@@ -7,5 +7,5 @@ type Player struct {
 	ID   int
 	Name string
 	Age  int
-	Role string
+	Projects []*Project
 }
