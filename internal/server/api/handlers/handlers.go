@@ -89,7 +89,21 @@ func AdminWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			log.Println("Failed to upgrade to WebSocket:", err)
 			return
 		}
-		// TODO: добавить проверку на существование админа(админ только один)
+
+		// TODO: проверить логики, уточнить в случае неудачи, куда мы перенаправялем пользователя
+		logged, err := userOperator.IsAdminLoggedIn()
+		if err != nil {
+			log.Println("failed to check the admin on redis")
+			return
+		}
+
+		if logged {
+			c.Redirect(http.StatusFound, "/home/role/login")
+			return // возможно стоит переправить на другую  html страницу
+		}
+
+		userOperator.AddAdmin()
+
 		go handleWebSocketConnection(userOperator, conn)
 	}
 }
@@ -102,13 +116,27 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			log.Println("Failed to upgrade to WebSocket:", err)
 			return
 		}
-		// TODO : добавить проверку на уже существующее количество пользователей(пользователей не должно быть более 9)
+
+		exceeded, err := userOperator.PlayersNumberExceeded()
+		if err != nil {
+			log.Println("failed to check the numbers of players")
+			return
+		}
+
+		if exceeded {
+			log.Println("9 players are already there")
+			return
+		}
+		userOperator.AddPlayer()
+
+		// TODO : проверить логику
 		go handleWebSocketConnection(userOperator, conn)
 	}
 }
 
 // Общая функция для обработки WebSocket-соединения
 func handleWebSocketConnection(userOperator usecase.UseCase, conn *websocket.Conn) {
+	// TODO : для разных кнопок обработать разные действия.
 	defer conn.Close()
 	for {
 		messageType, message, err := conn.ReadMessage()

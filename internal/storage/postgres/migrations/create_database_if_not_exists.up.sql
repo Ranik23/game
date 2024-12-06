@@ -1,0 +1,3 @@
+CREATE DATABASE GAME IF NOT EXISTS;
+
+USE my_database;

@@ -4,13 +4,16 @@ import (
 	// "context"
 	// "time"
 
+	"context"
+
 	"github.com/go-redis/redis/v8"
 )
 
 
 
 type Redis interface {
-	
+	Get(ctx context.Context, key string) (string, error)
+	Set(ctx context.Context, key string, value string) error
 }
 
 
@@ -29,18 +32,11 @@ func NewRedisClient(host, port, password string, database_number int) *RedisClie
 	}
 }
 
-// func (r *RedisClient) SetSession(ctx context.Context, sessionID string, data string, expiration time.Duration) error {
-//     return r.client.Set(ctx, sessionID, data, expiration).Err()
-// }
 
-// func (r *RedisClient) GetSession(ctx context.Context, sessionID string) (string, error) {
-//     return r.client.Get(ctx, sessionID).Result()
-// }
+func (r *RedisClient) Get(ctx context.Context, key string) (string, error) {
+	return r.client.Get(ctx, key).Result()
+}
 
-// func (r *RedisClient) DeleteSession(ctx context.Context, sessionID string) error {
-//     return r.client.Del(ctx, sessionID).Err()
-// }
-
-// func (r *RedisClient) Close() error {
-//     return r.client.Close()
-// }
+func (r *RedisClient) Set(ctx context.Context, key string, value string) error {
+	return r.client.Set(ctx, key, value, 0).Err()
+}
