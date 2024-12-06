@@ -39,11 +39,11 @@ func main() {
 	}
 
 
-	Router := gin.New()
+	Router := gin.Default()
 
-	Router.LoadHTMLGlob("/home/anton/game/internal/static/*.html")
+	Router.LoadHTMLGlob(filepath.Join(os.Getenv("HOME"), "home/anton/game/internal/static/*.html"))
 
-	Logger := &slog.Logger{}
+	Logger := slog.Default()
 
 	userOperator := usecase.NewUseCase(posstgresClient, redisClient, Logger)
 
