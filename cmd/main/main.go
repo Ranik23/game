@@ -16,22 +16,22 @@ import (
 
 func main() {
 
-	config, err := config.LoadConfig(filepath.Join(os.Getenv("HOME"), "game/config/config.yaml"))
+	cfg, err := config.LoadConfig(filepath.Join(os.Getenv("HOME"), "game/config/config.yaml"))
 	if err != nil {
 		log.Fatalf("failed to load the config: %v", err)
 	}
 
 
-	redisClient := redis.NewRedisClient(config.Redis.Addr,
-					config.Redis.Port,
-					config.Redis.Password,
-					config.Redis.DB)
+	redisClient := redis.NewRedisClient(cfg.Redis.Addr,
+					cfg.Redis.Port,
+					cfg.Redis.Password,
+					cfg.Redis.DB)
 
-	posstgresClient, err := postgres.NewPostgresClient(config.Postgres.Host, 
-						config.Postgres.Port,
-						config.Postgres.User,
-						config.Postgres.Password,
-						config.Postgres.DbName)
+	posstgresClient, err := postgres.NewPostgresClient(cfg.Postgres.Host, 
+						cfg.Postgres.Port,
+						cfg.Postgres.User,
+						cfg.Postgres.Password,
+						cfg.Postgres.DbName)
 	if err != nil {
 		log.Fatalf("failed to create a postgres client :%v", err)
 	}
@@ -39,13 +39,13 @@ func main() {
 
 	Router := gin.Default()
 
-	Router.LoadHTMLGlob(filepath.Join(os.Getenv("HOME"), "home/anton/game/internal/static/*.html"))
+	Router.LoadHTMLGlob(filepath.Join(os.Getenv("HOME"), "game/internal/static/*.html"))
 
 	Logger := slog.Default()
 
 	userOperator := usecase.NewUseCase(posstgresClient, redisClient, Logger)
 
-	server := server.NewServer(config, Logger, Router, userOperator)
+	server := server.NewServer(cfg, Logger, Router, userOperator)
 								
 	server.Run()
 
