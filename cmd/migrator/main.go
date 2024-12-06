@@ -24,11 +24,9 @@ func main() {
 	dsn := "host=" + cfg.Postgres.Host + " port=" + cfg.Localhost.Port + " user=" + cfg.Postgres.User + " password=" + cfg.Postgres.Password + " dbname=" + cfg.Postgres.DbName + " sslmode=disable"
 
 
-    m, err := migrate.New(
-        filepath.Join(os.Getenv("HOME"), "game/internal/storage/postgres/migrations"),
-        dsn)
+    m, err := migrate.New("file://" + os.Getenv("HOME") + "/game/internal/storage/postgres/migrations", dsn)
     if err != nil {
-        log.Fatal(err)
+        log.Fatal(err.Error())
     }
     if err := m.Up(); err != nil {
         log.Fatal(err)
