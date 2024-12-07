@@ -3,6 +3,7 @@ package usecase
 import (
 	//"game/internal/models"
 	"context"
+	"game/internal/models"
 	"game/internal/storage/postgres"
 	"game/internal/storage/redis"
 	"log/slog"
@@ -10,9 +11,12 @@ import (
 	"sync"
 )
 
+// TODO: возможно в структуре useCase хранить указатель на админа и игроков
+
 type UseCase interface {
-	AddPlayer() error
-	AddAdmin() error
+	AddPlayer(*models.Player) error
+	AddAdmin(*models.Admin) error
+	CountPlayers() int
 	IsAdminLoggedIn() (bool, error)
 	PlayersNumberExceeded() (bool, error)
 }
@@ -22,6 +26,8 @@ type useCase struct {
 	postgresClient postgres.Storage
 	redisClient	   redis.Redis
 	logger 		   *slog.Logger
+	Admin 		   *models.Admin
+	Players		   []*models.Player
 	mu sync.Mutex
 }
 
@@ -35,36 +41,25 @@ func NewUseCase(postgres *postgres.PostgresClient,
 	}
 }
 
+func (u *useCase) CountPlayers() int {
+	return len(u.Players)
+}
 
-func (u *useCase) AddPlayer() error {
+func (u *useCase) AddPlayer(player *models.Player) error {
 	u.mu.Lock()
 	defer u.mu.Unlock()
-
-	number, err := u.redisClient.Get(context.Background(), "players_number")
-	if err != nil {
-		return err
-	}
-
-	n, err := strconv.Atoi(number)
-	if err != nil {
-		return err
-	}
-
-	n += 1
-
-	if err := u.redisClient.Set(context.Background(), "players_number", strconv.Itoa(n)); err != nil {
-		return err
-	}
-
+	u.Players = append(u.Players, player)
 	return nil
 }
 
 
-func (u* useCase) AddAdmin() error {
+func (u* useCase) AddAdmin(admin *models.Admin) error {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
-	return u.redisClient.Set(context.Background(), "admin_logged", "true")
+	u.Admin = admin 
+
+	return u.redisClient.Set(context.Background(), "admin_logged", "true") // TODO: а если ошибка тут, а админа мы уже добавили
 }
 
 

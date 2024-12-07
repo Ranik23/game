@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"game/internal/models"
 	"game/internal/usecase"
 	"log"
 	"net/http"
@@ -56,13 +57,13 @@ func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 
 func MainHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
-		g.HTML(http.StatusOK, "main.html", gin.H{})
+		g.HTML(http.StatusOK, "player-main.html", gin.H{})
 	}
 }
 
 func AdminMainHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
-		g.HTML(http.StatusOK, "admin_main.html", gin.H{})
+		g.HTML(http.StatusOK, "admin-main.html", gin.H{})
 	}
 }
 
@@ -91,20 +92,25 @@ func AdminWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 		}
 
 		// TODO: проверить логики, уточнить в случае неудачи, куда мы перенаправялем пользователя
-		logged, err := userOperator.IsAdminLoggedIn()
-		if err != nil {
-			log.Println("failed to check the admin on redis")
+		// logged, err := userOperator.IsAdminLoggedIn()
+		// if err != nil {
+		// 	log.Println("failed to check the admin on redis")
+		// 	return
+		// }
+
+		// if logged {
+		// 	c.Redirect(http.StatusFound, "/home/role/login")
+		// 	return // возможно стоит переправить на другую  html страницу
+		// }
+
+		admin := models.NewAdmin("")
+
+		if err := userOperator.AddAdmin(admin); err != nil {
+			log.Printf("Failed to add the admin: %v", err)
 			return
 		}
 
-		if logged {
-			c.Redirect(http.StatusFound, "/home/role/login")
-			return // возможно стоит переправить на другую  html страницу
-		}
-
-		userOperator.AddAdmin()
-
-		go handleWebSocketConnection(userOperator, conn)
+		go admin.Run(conn)
 	}
 }
 
@@ -119,7 +125,7 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 
 		exceeded, err := userOperator.PlayersNumberExceeded()
 		if err != nil {
-			log.Println("failed to check the numbers of players")
+			log.Println("Failed to check the numbers of players")
 			return
 		}
 
@@ -127,30 +133,20 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			log.Println("9 players are already there")
 			return
 		}
-		userOperator.AddPlayer()
 
-		// TODO : проверить логику
-		go handleWebSocketConnection(userOperator, conn)
-	}
-}
+		player := models.NewPlayer(userOperator.CountPlayers() + 1, "")
 
-// Общая функция для обработки WebSocket-соединения
-func handleWebSocketConnection(userOperator usecase.UseCase, conn *websocket.Conn) {
-	// TODO : для разных кнопок обработать разные действия.
-	defer conn.Close()
-	for {
-		messageType, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("Failed to read message:", err)
+		if err := userOperator.AddPlayer(player); err != nil {
+			log.Println("Failed to add a player")
 			return
 		}
 
-		log.Printf("Received message: %s", message)
+		// TODO: тут еще нужно генерить ПРОЕКТНЫЕ ПРЕДЛОЖЕНИЯ, которые будут генериться через его алгоритм
+		// и передавать мы их будем в конструктор
 
-		err = conn.WriteMessage(messageType, []byte("Message received"))
-		if err != nil {
-			log.Println("Failed to write message:", err)
-			break
-		}
+ 		// TODO: как добавять имя? через запрос?
+
+		// TODO : проверить логику этого метода, точнее дописать ее
+		go player.Run(conn)
 	}
 }

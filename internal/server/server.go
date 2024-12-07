@@ -27,8 +27,6 @@ func NewServer(config *config.Config, logger *slog.Logger, router *gin.Engine, u
 		logger:  logger,
 		UserOperator: usecase,
 	}
-
-	server.setUpMiddlewares()
 	server.setUpRoutes()
 	server.setUpHTMLFiles(os.Getenv("HOME") + "/game/internal/static/*.html")
 	server.setUpStaticFiles()
@@ -43,8 +41,10 @@ func (s *Server) setUpRoutes() {
 
 	s.router.GET("/home", handlers.WelcomeHandler(s.UserOperator))
 	s.router.GET("/home/role", handlers.RoleHandler(s.UserOperator))
-	s.router.GET("/home/role/login", handlers.LoginHandlerGET(s.UserOperator))
+
+	s.router.GET("/home/role/login", handlers.LoginHandlerGET(s.UserOperator)) // TODO: эту логику надо убрать, а то тупо
 	s.router.POST("/home/role/login", handlers.LoginHandlerPOST(s.UserOperator))
+
 	s.router.GET("/home/role/guest-panel", handlers.MainHandler(s.UserOperator))
 	s.router.GET("/home/role/admin-panel", handlers.AdminMainHandler(s.UserOperator))
 	s.router.GET("/ws-guest", handlers.ClientWebSocketHandler(s.UserOperator))
