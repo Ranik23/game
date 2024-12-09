@@ -47,6 +47,7 @@ func (s *Server) setUpRoutes() {
 
 	s.router.GET("/home/role/guest-panel", handlers.MainHandler(s.UserOperator))
 	s.router.GET("/home/role/admin-panel", handlers.AdminMainHandler(s.UserOperator))
+	
 	s.router.GET("/ws-guest", handlers.ClientWebSocketHandler(s.UserOperator))
 	s.router.GET("/ws-admin", handlers.AdminWebSocketHandler(s.UserOperator))
 }

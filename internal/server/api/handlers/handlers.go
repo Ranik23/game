@@ -4,6 +4,7 @@ import (
 	"game/internal/models"
 	"game/internal/usecase"
 	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,6 @@ import (
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		// Проверяем источник запроса (в реальном приложении настройте это)
 		return true
 	},
 }
@@ -92,18 +92,18 @@ func AdminWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 		}
 
 		// TODO: проверить логики, уточнить в случае неудачи, куда мы перенаправялем пользователя
-		// logged, err := userOperator.IsAdminLoggedIn()
-		// if err != nil {
-		// 	log.Println("failed to check the admin on redis")
-		// 	return
-		// }
+		logged, err := userOperator.IsAdminLoggedIn()
+		if err != nil {
+			log.Println("failed to check the admin on redis")
+			return
+		}
 
-		// if logged {
-		// 	c.Redirect(http.StatusFound, "/home/role/login")
-		// 	return // возможно стоит переправить на другую  html страницу
-		// }
+		if logged {
+			c.Redirect(http.StatusFound, "/home/role/login")
+			return // возможно стоит переправить на другую  html страницу
+		}
 
-		admin := models.NewAdmin("")
+		admin := models.NewAdmin("Anton Fedorov")
 
 		if err := userOperator.AddAdmin(admin); err != nil {
 			log.Printf("Failed to add the admin: %v", err)
@@ -122,10 +122,26 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			log.Println("Failed to upgrade to WebSocket:", err)
 			return
 		}
+		defer func() {
+			conn.Close()
+			log.Println("Connection closed!")
+		}()
 
 		exceeded, err := userOperator.PlayersNumberExceeded()
 		if err != nil {
-			log.Println("Failed to check the numbers of players")
+			log.Println("Failed to check the numbers of players:", err)
+			return
+		}
+
+		logged, err := userOperator.IsAdminLoggedIn()
+		if err != nil {
+			log.Println("Failed to check the admin on redis:", err)
+			return
+		}
+
+		if !logged {
+			log.Println("Admin is not logged in yet")
+			c.Redirect(http.StatusFound, "/home/role/login")
 			return
 		}
 
@@ -134,19 +150,18 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		player := models.NewPlayer(userOperator.CountPlayers() + 1, "")
+		
+		player := models.NewPlayer(userOperator.CountPlayers()+1, "anton fedorov", slog.Default())
 
 		if err := userOperator.AddPlayer(player); err != nil {
-			log.Println("Failed to add a player")
+			log.Println("Failed to add a player:", err)
 			return
 		}
 
-		// TODO: тут еще нужно генерить ПРОЕКТНЫЕ ПРЕДЛОЖЕНИЯ, которые будут генериться через его алгоритм
-		// и передавать мы их будем в конструктор
-
- 		// TODO: как добавять имя? через запрос?
-
-		// TODO : проверить логику этого метода, точнее дописать ее
-		go player.Run(conn)
+		go func() {
+			if err := player.Run(conn); err != nil {
+				log.Println("Failed to run player:", err)
+			}
+		}()
 	}
 }

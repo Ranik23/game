@@ -1,33 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="WebSocket Admin Panel for managing users and sending messages.">
   <title>WebSocket Admin Panel</title>
-  <link rel="stylesheet" href="/static/admin-panel-styles.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      max-width: 1200px;
+      margin: auto;
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    .sidebar {
+      flex: 10 10 100%;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 4rem - 2rem);
+    }
+
+    .sidebar h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #007bff;
+      /* Синий текст */
+    }
+
+    .sidebar #playersList {
+      font-size: 2rem;
+      line-height: 1.5;
+      color: #333;
+      /* Тёмный текст */
+    }
+
+    #playersList {
+      list-style: none;
+      padding: 0;
+    }
+
+    #playersList li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #playersList button {
+      margin-left: 0.5rem;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #playersList .accept-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #playersList .accept-btn:hover {
+      background-color: #218838;
+    }
+
+    #playersList .remove-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    #playersList .remove-btn:hover {
+      background-color: #c82333;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    footer {
+      background-color: #f1f1f1;
+      text-align: center;
+      padding: 1rem;
+      border-top: 1px solid #ddd;
+    }
+
+    footer p {
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
 </head>
+
 <body>
   <header>
     <h1>WebSocket Admin Panel</h1>
   </header>
 
   <main>
-    <!-- User Management Section -->
-    <section id="user-management" class="admin-section">
-      <h2>Управление пользователями</h2>
-      <button id="kickUserButton">Удалить пользователя</button>
-      <button id="broadcastMessageButton">Широковещательное сообщение</button>
-    </section>
-    <!-- System Log Section -->
-    <section id="system-log" class="admin-section">
-      <h2>Системный лог</h2>
-      <div id="systemLog"></div>
-    </section>
-    <section id="players-list" class="admin-section">
+    <!-- Players List Sidebar -->
+    <aside class="sidebar">
       <h2>Список игроков</h2>
-      <div id="playersList"></div>
-    </section>
+      <ul id="playersList">
+      </ul>
+    </aside>
   </main>
 
   <footer>
@@ -36,4 +143,5 @@
 
   <script src="/static/admin-panel.js" defer></script>
 </body>
+
 </html>

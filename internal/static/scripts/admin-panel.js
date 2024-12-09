@@ -13,7 +13,7 @@ function createWebSocketAdmin() {
         setInterval(() => {
             if (socket.readyState === WebSocket.OPEN) {
                 socket.send(JSON.stringify({ Action: 'get_players' }));
-                console.log('Отправлне запрос на получение списка игроков')
+                console.log('Отправление запрос на получение списка игроков')
             }
         }, 1000);
     };
@@ -22,21 +22,19 @@ function createWebSocketAdmin() {
         const data = JSON.parse(event.data);
         console.log('Сообщение получено:', data);
 
-        if (data.type === 'players_list') {
+        if (data.action === 'players_list') {
             displayPlayers(data.content); // Обновление списка игроков
-        } else {
-            logSystemMessage(`Сервер: ${event.data}`); // Отобразить сообщение от сервера
+        }
+        if (data.action === 'player_accepted') {
+            console.log('Игрок принят')
+        }
+        if (data.action === 'player_rejected') {
+            console.log('Игрок отклонен')
         }
     };
 
     socket.onclose = () => {
-        console.log('WebSocket закрыт. Попытка переподключения...');
-        if (retryCount < maxRetries) {
-            retryCount++;
-            setTimeout(createWebSocketAdmin, 1000 * retryCount); // Увеличение времени ожидания перед повторной попыткой
-        } else {
-            console.error('Достигнуто максимальное количество попыток подключения.');
-        }
+        console.log('WebSocket закрыт')
     };
 
     socket.onerror = error => {
@@ -44,40 +42,53 @@ function createWebSocketAdmin() {
     };
 }
 
-function logSystemMessage(message) {
-    const systemLog = document.getElementById('system-log');
-    const logElement = document.createElement('div');
-    logElement.textContent = message;
-    systemLog.appendChild(logElement);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const kickButton = document.getElementById('kickUserButton');
-    kickButton.addEventListener('click', () => {
-        if (socket.readyState === WebSocket.OPEN) {
-            const userId = prompt('Введите ID пользователя для удаления:');
-            if (userId) {
-                socket.send(JSON.stringify({ type: 'kick', userId }));
-                logSystemMessage(`Пользователь с ID ${userId} удален.`);
-            }
-        }
+document.addEventListener("DOMContentLoaded", () => {
+    const playersList = document.getElementById("playersList");
+  
+    playersList.addEventListener("click", (event) => {
+      const target = event.target;
+  
+      if (target.classList.contains("accept-btn")) {
+        const userId = target.closest("li").dataset.userId;
+        alert(`Игрок с ID ${userId} принят`);
+        socket.send(JSON.stringify({ Action: 'accept_player', Data: userId }));
+        // Здесь вы можете отправить запрос на сервер для обработки принятия
+      }
+  
+      // Проверяем, нажата ли кнопка "Удалить"
+      if (target.classList.contains("remove-btn")) {
+        const userId = target.closest("li").dataset.userId;
+        alert(`Игрок с ID ${userId} удалён`);
+        socket.send(JSON.stringify({ Action: 'delete_player', Data: userId }));
+        target.closest("li").remove(); // Удаляет элемент из списка
+      }
     });
-});
+  });
+  
 
 // Функция для отображения списка игроков
 function displayPlayers(players) {
     const playersList = document.getElementById("playersList");
     playersList.innerHTML = ""; // Очистка предыдущего содержимого
 
-    players.forEach(player => {
-        const playerElement = document.createElement("div");
-        playerElement.classList.add("player");
-        playerElement.innerHTML = `
-            <span class="player-name">${player.name}</span>
-            <span class="player-status">${player.status}</span>
-        `;
-        playersList.appendChild(playerElement);
-    });
+    // Проверка, что players существует и является массивом
+    if (Array.isArray(players) && players.length > 0) {
+        players.forEach(player => {
+            const playerElement = document.createElement("li");
+            playerElement.dataset.userId = player.id; // Уникальный идентификатор игрока
+            playerElement.innerHTML = `
+                <span class="player-name">${player.name}</span>
+                <button class="accept-btn">Принять</button>
+                <button class="remove-btn">Удалить</button>
+            `;
+            playersList.appendChild(playerElement);
+        });
+    } else {
+        // Если игроков нет, можно не выводить ничего или показать сообщение
+        console.log('Нет игроков для отображения');
+    }
 }
+
+
 
 createWebSocketAdmin();

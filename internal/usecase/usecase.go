@@ -7,7 +7,6 @@ import (
 	"game/internal/storage/postgres"
 	"game/internal/storage/redis"
 	"log/slog"
-	"strconv"
 	"sync"
 )
 
@@ -22,75 +21,63 @@ type UseCase interface {
 }
 
 
-type useCase struct {
+type userOperator struct {
 	postgresClient postgres.Storage
 	redisClient	   redis.Redis
 	logger 		   *slog.Logger
 	Admin 		   *models.Admin
-	Players		   []*models.Player
-	mu sync.Mutex
+	mutex sync.Mutex
 }
 
 func NewUseCase(postgres *postgres.PostgresClient,
 				redis *redis.RedisClient,
-				logger *slog.Logger) *useCase {
-	return &useCase{
+				logger *slog.Logger) *userOperator {
+	return &userOperator{
 		postgresClient: postgres,
 		redisClient:    redis,
 		logger: logger,
 	}
 }
 
-func (u *useCase) CountPlayers() int {
-	return len(u.Players)
+func (operator *userOperator) CountPlayers() int {
+	operator.mutex.Lock()
+	defer operator.mutex.Unlock()
+	return len(operator.Admin.Players)
 }
 
-func (u *useCase) AddPlayer(player *models.Player) error {
-	u.mu.Lock()
-	defer u.mu.Unlock()
-	u.Players = append(u.Players, player)
+func (operator *userOperator) AddPlayer(player *models.Player) error {
+	operator.mutex.Lock()
+	defer operator.mutex.Unlock()
+	operator.Admin.Players = append(operator.Admin.Players, *player)
 	return nil
 }
 
 
-func (u* useCase) AddAdmin(admin *models.Admin) error {
-	u.mu.Lock()
-	defer u.mu.Unlock()
+func (operator* userOperator) AddAdmin(admin *models.Admin) error {
+	operator.mutex.Lock()
+	defer operator.mutex.Unlock()
 
-	u.Admin = admin 
+	operator.Admin = admin 
 
-	return u.redisClient.Set(context.Background(), "admin_logged", "true") // TODO: а если ошибка тут, а админа мы уже добавили
+	return operator.redisClient.Set(context.Background(), "admin_logged", "true") // TODO: а если ошибка тут, а админа мы уже добавили
 }
 
 
-func (u *useCase) IsAdminLoggedIn() (bool, error) {
-	u.mu.Lock()
-	defer u.mu.Unlock()
+func (operator *userOperator) IsAdminLoggedIn() (bool, error) {
+	operator.mutex.Lock()
+	defer operator.mutex.Unlock()
 
-	loggedIn, err := u.redisClient.Get(context.Background(), "admin_logged_in") // TODO: возможно mutex и не нужен, если redis клиент thread-safe
-	if err != nil {
-		return false, err
-	}
-	return loggedIn == "true", nil
-}
-
-func (u *useCase) PlayersNumberExceeded() (bool, error) {
-	u.mu.Lock()
-	defer u.mu.Unlock()
-	
-	exceeded, err := u.redisClient.Get(context.Background(), "players_number") // TODO: redis хранить по ключу только строки?
-	if err != nil {
-		return false, err
-	}
-
-	e, err := strconv.Atoi(exceeded) 
-	if err != nil {
-		return false, err 
-	}
-	if e >= 9 {
+	if operator.Admin != nil {
 		return true, nil
-	}
+	} else {
+		return false, nil
+	} 
+	// TODO: пока убрать ошибку в возвращаемом значении
+}
 
+func (operator *userOperator) PlayersNumberExceeded() (bool, error) {
+	operator.mutex.Lock()
+	defer operator.mutex.Unlock()
 	return false, nil
 }
 
