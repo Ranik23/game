@@ -1,0 +1,75 @@
+/* styles.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f4f8; /* Светлый фон */
+    color: #333; /* Темный текст */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Полная высота экрана */
+}
+
+.login-container {
+    background-color: #ffffff; /* Белый фон для контейнера */
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Тень */
+    padding: 30px;
+    max-width: 400px; /* Максимальная ширина контейнера */
+    width: 100%; /* Ширина контейнера 100% */
+    text-align: center; /* Центрирование текста */
+}
+
+h1 {
+    font-size: 2em; /* Размер заголовка */
+    color: #4a90e2; /* Цвет заголовка */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+label {
+    margin-top: 10px; /* Отступ сверху для меток */
+    text-align: left; /* Выравнивание текста по левому краю */
+    display: block; /* Блок для меток */
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 10px; /* Отступы внутри полей ввода */
+    margin-top: 5px; /* Отступ сверху для полей ввода */
+    border: 1px solid #ccc; /* Светлая граница */
+    border-radius: 5px; /* Закругленные углы полей ввода */
+    font-size: 1em; /* Размер текста в полях ввода */
+    width: 100%; /* Ширина полей ввода 100% */
+    box-sizing: border-box; /* Учитываем отступы и границы в ширине */
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #4a90e2; /* Цвет границы при фокусе */
+    outline: none; /* Убираем обводку */
+}
+
+button {
+    margin-top: 20px; /* Отступ сверху для кнопки */
+    padding: 10px; /* Отступы внутри кнопки */
+    font-size: 1em; /* Размер текста кнопки */
+    color: #ffffff; /* Цвет текста кнопки */
+    background-color: #4a90e2; /* Цвет фона кнопки */
+    border: none; /* Без границы */
+    border-radius: 5px; /* Закругленные углы кнопки */
+    cursor: pointer; /* Курсор при наведении */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+    width: 100%; /* Ширина кнопки 100% */
+}
+
+button:hover {
+    background-color: #357ab8; /* Цвет кнопки при наведении */
+}
+
+.error-message {
+    color: #d9534f; /* Цвет текста сообщения об ошибке */
+    margin-top: 15px; /* Отступ сверху для сообщения об ошибке */
+    font-size: 0.9em; /* Размер текста сообщения об ошибке */
+}

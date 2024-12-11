@@ -1,31 +1,113 @@
-body {
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
     font-family: Arial, sans-serif;
-    background-color: #f0f8ff;
+    background-color: #f9f9f9;
     color: #333;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    text-align: center;
-}
-h1 {
-    font-size: 3em;
-    margin-bottom: 0.5em;
-    color: #4a90e2;
-}
-p {
-    font-size: 1.2em;
-    margin-bottom: 1.5em;
-}
-.button {
-    background-color: #4a90e2;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    background-color: #007bff;
     color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-.button:hover {
-    background-color: #357ab8;
-}
+    text-align: center;
+    padding: 1rem;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    max-width: 1200px;
+    margin: auto;
+    gap: 2rem;
+    padding: 2rem;
+  }
+
+  .sidebar {
+    flex: 10 10 100%;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 4rem - 2rem);
+  }
+
+  .sidebar h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #007bff;
+    /* Синий текст */
+  }
+
+  .sidebar #playersList {
+    font-size: 2rem;
+    line-height: 1.5;
+    color: #333;
+    /* Тёмный текст */
+  }
+
+  #playersList {
+    list-style: none;
+    padding: 0;
+  }
+
+  #playersList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ddd;
+  }
+
+  #playersList button {
+    margin-left: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  #playersList .accept-btn {
+    background-color: #28a745;
+    color: white;
+  }
+
+  #playersList .accept-btn:hover {
+    background-color: #218838;
+  }
+
+  #playersList .remove-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  #playersList .remove-btn:hover {
+    background-color: #c82333;
+  }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid #ddd;
+  }
+
+  footer p {
+    font-size: 0.9rem;
+    color: #555;
+  }

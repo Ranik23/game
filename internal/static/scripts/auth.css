@@ -1,0 +1,84 @@
+/* welcome.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e9ecef; /* Светлый фон */
+    color: #333; /* Темный текст */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Полная высота экрана */
+}
+
+.auth-container {
+    background-color: #ffffff; /* Белый фон для контейнера */
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Тень */
+    padding: 30px;
+    max-width: 400px; /* Максимальная ширина контейнера */
+    width: 100%; /* Ширина контейнера 100% */
+    text-align: center; /* Центрирование текста */
+}
+
+h2 {
+    font-size: 2em; /* Размер заголовка */
+    color: #4a90e2; /* Цвет заголовка */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+.role-buttons {
+    margin-bottom: 20px; /* Отступ снизу для кнопок ролей */
+}
+
+button {
+    display: inline-block; /* Блок для кнопок */
+    padding: 10px 20px; /* Отступы внутри кнопок */
+    font-size: 1em; /* Размер текста кнопок */
+    color: #ffffff; /* Цвет текста кнопок */
+    background-color: #4a90e2; /* Цвет фона кнопок */
+    border: none; /* Без границы */
+    border-radius: 5px; /* Закругленные углы кнопок */
+    cursor: pointer; /* Курсор при наведении */
+    margin: 5px; /* Отступ между кнопками */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+}
+
+button:hover {
+    background-color: #357ab8; /* Цвет кнопок при наведении */
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение элементов формы */
+}
+
+label {
+    margin-top: 10px; /* Отступ сверху для меток */
+    text-align: left; /* Выравнивание текста по левому краю */
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 10px; /* Отступы внутри полей ввода */
+    margin-top: 5px; /* Отступ сверху для полей ввода */
+    border: 1px solid #ccc; /* Светлая граница */
+    border-radius: 5px; /* Закругленные углы полей ввода */
+    font-size: 1em; /* Размер текста в полях ввода */
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #4a90e2; /* Цвет границы при фокусе */
+    outline: none; /* Убираем обводку */
+}
+
+button[type="submit"] {
+    margin-top: 20px; /* Отступ сверху для кнопки отправки */
+    background-color: #28a745; /* Цвет фона кнопки отправки */
+}
+
+button[type="submit"]:hover {
+    background-color: #218838; /* Цвет кнопки отправки при наведении */
+}

@@ -1,0 +1,176 @@
+/* admin-panel-styles.css */
+
+/* Общие стили */
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #f4f4f4, #e0e0e0); /* Градиентный фон */
+  color: #333; /* Темный текст */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column; /* Вертикальное расположение элементов */
+  height: 100vh; /* Полная высота экрана */
+  overflow: hidden; /* Скрываем прокрутку */
+}
+
+/* Стили для заголовка */
+header {
+  background: linear-gradient(135deg, #4a90e2, #3a78b7); /* Градиентный фон заголовка */
+  color: #ffffff; /* Цвет текста заголовка */
+  padding: 15px 20px; /* Отступы внутри заголовка */
+  text-align: center; /* Центрирование текста */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Тень для заголовка */
+  border-bottom-left-radius: 20px; /* Округление нижнего левого угла */
+  border-bottom-right-radius: 20px; /* Округление нижнего правого угла */
+  width: fit-content; /* Ширина подстраивается под содержимое */
+  margin: 0 auto; /* Центрирование заголовка */
+}
+
+/* Стили для основного контента */
+main {
+  display: flex; /* Горизонтальное расположение элементов */
+  flex: 1; /* Занимает оставшееся пространство */
+  overflow: hidden; /* Скрываем прокрутку */
+}
+
+/* Стили для боковой панели */
+.sidebar {
+  background: #ffffff; /* Белый фон для боковой панели */
+  border-right: 1px solid #e0e0e0; /* Граница справа */
+  width: 250px; /* Ширина боковой панели */
+  padding: 20px; /* Отступы внутри боковой панели */
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Тень для боковой панели */
+  border-top-right-radius: 20px; /* Округление верхнего правого угла */
+  border-bottom-right-radius: 20px; /* Округление нижнего правого угла */
+  overflow-y: auto; /* Прокрутка внутри боковой панели */
+}
+
+.sidebar h2 {
+  font-size: 1.5em; /* Размер заголовка боковой панели */
+  margin-bottom: 15px; /* Отступ снизу */
+  color: #4a90e2; /* Цвет текста заголовка */
+  text-transform: uppercase; /* Верхний регистр */
+  letter-spacing: 1px; /* Межбуквенное расстояние */
+}
+
+/* Стили для списка игроков */
+#playersList {
+  list-style-type: none; /* Убираем маркеры списка */
+  padding: 0; /* Убираем отступы */
+}
+
+#playersList li {
+  padding: 10px; /* Отступы внутри элементов списка */
+  border-bottom: 1px solid #eee; /* Граница снизу для элементов списка */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Плавные переходы */
+  border-radius: 10px; /* Округление углов */
+  margin-bottom: 10px; /* Отступ снизу */
+}
+
+#playersList li:last-child {
+  border-bottom: none; /* Убираем границу у последнего элемента */
+  margin-bottom: 0; /* Убираем отступ у последнего элемента */
+}
+
+#playersList li:hover {
+  background-color: #f9f9f9; /* Фон при наведении */
+  transform: scale(1.02); /* Увеличение при наведении */
+}
+
+/* Стили для подвала */
+footer {
+  background: linear-gradient(135deg, #4a90e2, #3a78b7); /* Градиентный фон подвала */
+  color: #ffffff; /* Цвет текста подвала */
+  text-align: center; /* Центрирование текста */
+  padding: 10px; /* Отступы внутри подвала */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); /* Тень для подвала */
+  border-top-left-radius: 20px; /* Округление верхнего левого угла */
+  border-top-right-radius: 20px; /* Округление верхнего правого угла */
+}
+
+footer p {
+  margin: 0; /* Убираем отступы */
+  font-size: 0.9em; /* Размер текста в подвале */
+}
+
+/* Дополнительные стили для кнопок */
+#playersList button {
+  background: linear-gradient(135deg, #4a90e2, #3a78b7); /* Градиентный фон кнопок */
+  color: #ffffff; /* Цвет текста кнопок */
+  border: none; /* Убираем границу */
+  padding: 5px 10px; /* Отступы внутри кнопок */
+  border-radius: 5px; /* Скругление углов */
+  cursor: pointer; /* Курсор при наведении */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Плавные переходы */
+  margin-right: 5px; /* Отступ справа */
+}
+
+#playersList button:hover {
+  background: linear-gradient(135deg, #3a78b7, #2a6097); /* Градиентный фон при наведении */
+  transform: scale(1.05); /* Увеличение при наведении */
+}
+
+/* Стили для контентной области */
+.content {
+  flex: 1; /* Занимает оставшееся пространство */
+  padding: 20px; /* Отступы внутри контентной области */
+  overflow-y: auto; /* Прокрутка внутри контентной области */
+  background: #ffffff; /* Белый фон */
+  border-top-left-radius: 20px; /* Округление верхнего левого угла */
+  border-bottom-left-radius: 20px; /* Округление нижнего левого угла */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для контентной области */
+}
+
+/* Стили для спидометров */
+.speedometer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px; /* Отступ снизу */
+  background: #f9f9f9; /* Фон для спидометров */
+  padding: 20px; /* Отступы внутри спидометров */
+  border-radius: 20px; /* Округление углов */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень для спидометров */
+}
+
+.speedometer svg {
+  width: 200px; /* Ширина SVG */
+  height: 200px; /* Высота SVG */
+}
+
+.speedometer button {
+  padding: 10px 20px; /* Отступы внутри кнопок */
+  font-size: 1em; /* Размер текста кнопок */
+  border: none; /* Убираем границу */
+  border-radius: 5px; /* Скругление углов */
+  cursor: pointer; /* Курсор при наведении */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Плавные переходы */
+  margin-top: 10px; /* Отступ сверху */
+}
+
+.speedometer button.decrease {
+  background: linear-gradient(135deg, #dc3545, #c82333); /* Градиентный фон кнопки уменьшения */
+  color: #ffffff; /* Цвет текста кнопки уменьшения */
+}
+
+.speedometer button.decrease:hover {
+  background: linear-gradient(135deg, #c82333, #b0212f); /* Градиентный фон при наведении */
+  transform: scale(1.05); /* Увеличение при наведении */
+}
+
+.speedometer button.increase {
+  background: linear-gradient(135deg, #28a745, #218838); /* Градиентный фон кнопки увеличения */
+  color: #ffffff; /* Цвет текста кнопки увеличения */
+}
+
+.speedometer button.increase:hover {
+  background: linear-gradient(135deg, #218838, #1a6e2e); /* Градиентный фон при наведении */
+  transform: scale(1.05); /* Увеличение при наведении */
+}
+
+.speedometer span {
+  font-size: 1.5em; /* Размер текста значения */
+  margin-top: 10px; /* Отступ сверху */
+  color: #4a90e2; /* Цвет текста значения */
+}

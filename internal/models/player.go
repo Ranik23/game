@@ -2,18 +2,20 @@ package models
 
 import (
 	"fmt"
+	"log"
 	"log/slog"
 
 	"github.com/gorilla/websocket"
 )
 
 type Player struct {
-	ID       int           `json:"id"`
-	UserName string        `json:"username"`
-	Projects []string      `json:"projects"`
-	Accepted chan struct{} `json:"-"`
-	Rejected chan struct{} `json:"-"`
-	Logger   *slog.Logger  `json:"-"`
+	ID       	int           	`json:"id"`
+	UserName 	string        	`json:"username"`
+	Projects 	[]string      	`json:"projects"`
+	Accepted 	chan struct{} 	`json:"-"`
+	Rejected 	chan struct{} 	`json:"-"`
+	GameStarted	chan struct{}	`json:"-"`
+	Logger   	*slog.Logger  	`json:"-"`
 }
 
 func NewPlayer(id int, name string, logger *slog.Logger) *Player {
@@ -48,6 +50,13 @@ func (p *Player) Run(connection *websocket.Conn) error {
 		return ErrRejectedByAdmin
 	}
 
+	log.Println("Waiting for the game start")
+
+	<-p.GameStarted
+
 	for {
+
+
+
 	}
 }

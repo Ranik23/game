@@ -1,0 +1,50 @@
+/* styles.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f8ff; /* Светлый фон */
+    color: #333; /* Темный текст */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Полная высота экрана */
+}
+
+div {
+    text-align: center;
+    background-color: #ffffff; /* Белый фон для блока */
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Тень */
+    padding: 20px;
+    max-width: 400px; /* Максимальная ширина блока */
+    width: 100%; /* Ширина блока 100% */
+}
+
+h1 {
+    font-size: 2.5em; /* Размер заголовка */
+    color: #4a90e2; /* Цвет заголовка */
+    margin-bottom: 10px; /* Отступ снизу */
+}
+
+p {
+    font-size: 1.2em; /* Размер текста */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+.button {
+    display: inline-block; /* Блок для кнопки */
+    padding: 10px 20px; /* Отступы внутри кнопки */
+    font-size: 1.2em; /* Размер текста кнопки */
+    color: #ffffff; /* Цвет текста кнопки */
+    background-color: #4a90e2; /* Цвет фона кнопки */
+    border: none; /* Без границы */
+    border-radius: 5px; /* Закругленные углы кнопки */
+    text-decoration: none; /* Убираем подчеркивание */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+}
+
+.button:hover {
+    background-color: #357ab8; /* Цвет кнопки при наведении */
+}

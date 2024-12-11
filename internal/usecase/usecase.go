@@ -48,7 +48,7 @@ func (operator *userOperator) CountPlayers() int {
 func (operator *userOperator) AddPlayer(player *models.Player) error {
 	operator.mutex.Lock()
 	defer operator.mutex.Unlock()
-	operator.Admin.Players = append(operator.Admin.Players, *player)
+	operator.Admin.Players = append(operator.Admin.Players, player)
 	return nil
 }
 

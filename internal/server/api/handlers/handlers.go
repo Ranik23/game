@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -17,25 +18,32 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func WelcomeHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+func WelcomeHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(g *gin.Context) {
+		session := sessions.Default(g)
+		session.Set("welcome", "true")
+		session.Save()
 		g.HTML(http.StatusOK, "welcome.html", gin.H{})
 	}
 }
 
-func RoleHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+func RoleHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(g *gin.Context) {
-		g.HTML(http.StatusOK, "auth.html", gin.H{})
+		session := sessions.Default(g)
+		session.Set("role", "yes")
+		session.Save()
+		g.HTML(http.StatusOK, "role.html", gin.H{})
 	}
 }
 
-func LoginHandlerGET(userOperator usecase.UseCase) gin.HandlerFunc {
+func LoginHandlerGET(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(g *gin.Context) {
+
 		g.HTML(http.StatusOK, "login.html", gin.H{})
 	}
 }
 
-func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
+func LoginHandlerPOST(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username := c.PostForm("username")
 		password := c.PostForm("password")
@@ -43,6 +51,10 @@ func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 		log.Println("Username:", username, "Password:", password)
 
 		if username == "admin" && password == "123" {
+			session := sessions.Default(c)
+			session.Set("username", username)
+			session.Save()
+
 			c.JSON(http.StatusOK, gin.H{
 				"message":  "login success",
 				"redirect": "/home/role/admin-panel",
@@ -55,58 +67,44 @@ func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 	}
 }
 
-func MainHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+func MainHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(g *gin.Context) {
-		g.HTML(http.StatusOK, "player-main.html", gin.H{})
+		g.HTML(http.StatusOK, "player-panel.html", gin.H{})
 	}
 }
 
-func AdminMainHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+func AdminMainHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(g *gin.Context) {
-		g.HTML(http.StatusOK, "admin-main.html", gin.H{})
+		g.HTML(http.StatusOK, "admin-panel.html", gin.H{})
 	}
 }
 
-func AuthPostHandler(userOperator usecase.UseCase) gin.HandlerFunc {
-	return func(g *gin.Context) {
-		username := g.PostForm("username")
-		password := g.PostForm("password")
-
-		if username == "admin" && password == "admin123" {
-			g.Redirect(http.StatusFound, "/admin_main")
-		} else {
-			g.HTML(http.StatusOK, "auth.html", gin.H{
-				"error": "Invalid username or password",
-			})
-		}
-	}
-}
-
-// Handler для обработки соединения между админом и сервером
-func AdminWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		logged, err := userOperator.IsAdminLoggedIn()
+		if err != nil {
+			log.Println("Failed to check the admin:", err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		if logged {
+			log.Println("Admin is already logged in. Redirecting...")
+			c.Redirect(http.StatusFound, "/home/role/login")
+			return
+		}
+
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			log.Println("Failed to upgrade to WebSocket:", err)
 			return
 		}
-
-		// TODO: проверить логики, уточнить в случае неудачи, куда мы перенаправялем пользователя
-		logged, err := userOperator.IsAdminLoggedIn()
-		if err != nil {
-			log.Println("failed to check the admin on redis")
-			return
-		}
-
-		if logged {
-			c.Redirect(http.StatusFound, "/home/role/login")
-			return // возможно стоит переправить на другую  html страницу
-		}
+		defer conn.Close()
 
 		admin := models.NewAdmin("Anton Fedorov")
 
 		if err := userOperator.AddAdmin(admin); err != nil {
-			log.Printf("Failed to add the admin: %v", err)
+			log.Printf("Failed to add an admin: %v", err)
 			return
 		}
 
@@ -114,19 +112,9 @@ func AdminWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	}
 }
 
-// Handler для обработки соединения между клиентом и сервером
-func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-		if err != nil {
-			log.Println("Failed to upgrade to WebSocket:", err)
-			return
-		}
-		defer func() {
-			conn.Close()
-			log.Println("Connection closed!")
-		}()
 
+func ClientWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		exceeded, err := userOperator.PlayersNumberExceeded()
 		if err != nil {
 			log.Println("Failed to check the numbers of players:", err)
@@ -141,7 +129,7 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 
 		if !logged {
 			log.Println("Admin is not logged in yet")
-			c.Redirect(http.StatusFound, "/home/role/login")
+			c.Redirect(http.StatusFound, "/home/role/login") 
 			return
 		}
 
@@ -150,18 +138,32 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		
-		player := models.NewPlayer(userOperator.CountPlayers()+1, "anton fedorov", slog.Default())
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			log.Println("Failed to upgrade to WebSocket:", err)
+			return
+		}
+		defer func() {
+			conn.Close()
+			log.Println("Connection closed!")
+		}()
+
+		player := models.NewPlayer(userOperator.CountPlayers()+1, "Anton Fedorov", slog.Default())
 
 		if err := userOperator.AddPlayer(player); err != nil {
-			log.Println("Failed to add a player:", err)
+			log.Printf("Failed to add a player: %v", err)
 			return
 		}
 
-		go func() {
-			if err := player.Run(conn); err != nil {
-				log.Println("Failed to run player:", err)
-			}
-		}()
+		go player.Run(conn);
+	}
+}
+
+func LogoutHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Clear()
+		session.Save()
+		c.Redirect(http.StatusFound, "/home/role/login")
 	}
 }
