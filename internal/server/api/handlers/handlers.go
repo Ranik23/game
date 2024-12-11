@@ -38,7 +38,6 @@ func RoleHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFu
 
 func LoginHandlerGET(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(g *gin.Context) {
-
 		g.HTML(http.StatusOK, "login.html", gin.H{})
 	}
 }
@@ -81,6 +80,7 @@ func AdminMainHandler(userOperator usecase.UseCase, router *gin.Engine) gin.Hand
 
 func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		logged, err := userOperator.IsAdminLoggedIn()
 		if err != nil {
 			log.Println("Failed to check the admin:", err)
@@ -99,7 +99,6 @@ func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin
 			log.Println("Failed to upgrade to WebSocket:", err)
 			return
 		}
-		defer conn.Close()
 
 		admin := models.NewAdmin("Anton Fedorov")
 
@@ -112,52 +111,67 @@ func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin
 	}
 }
 
-
 func ClientWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			log.Println("Failed to upgrade to WebSocket:", err)
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Failed to upgrade WebSocket"})
+			return
+		}
+
+		defer func() {
+			conn.Close()
+			log.Println("Connection closed!")
+		}()
+
 		exceeded, err := userOperator.PlayersNumberExceeded()
 		if err != nil {
+			conn.WriteMessage(websocket.TextMessage, []byte("internal server error"))
 			log.Println("Failed to check the numbers of players:", err)
 			return
 		}
 
 		logged, err := userOperator.IsAdminLoggedIn()
 		if err != nil {
+			conn.WriteMessage(websocket.TextMessage, []byte("internal server error"))
 			log.Println("Failed to check the admin on redis:", err)
 			return
 		}
 
 		if !logged {
+			conn.WriteMessage(websocket.TextMessage, []byte("admin not logged yet"))
 			log.Println("Admin is not logged in yet")
-			c.Redirect(http.StatusFound, "/home/role/login") 
 			return
 		}
 
 		if exceeded {
+			conn.WriteMessage(websocket.TextMessage, []byte("players exceeded"))
 			log.Println("9 players are already there")
 			return
 		}
 
-		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-		if err != nil {
-			log.Println("Failed to upgrade to WebSocket:", err)
-			return
-		}
-		defer func() {
-			conn.Close()
-			log.Println("Connection closed!")
-		}()
-
-		player := models.NewPlayer(userOperator.CountPlayers()+1, "Anton Fedorov", slog.Default())
+		player := models.NewPlayer(userOperator.CountPlayers() + 1, "Name", slog.Default())
 
 		if err := userOperator.AddPlayer(player); err != nil {
 			log.Printf("Failed to add a player: %v", err)
 			return
 		}
+		select {
+		case <-player.Accepted:
+			log.Println("player accepted")
+			conn.WriteMessage(websocket.TextMessage, []byte("player accepted"))
+			return
+		case <-player.Rejected:
+			log.Println("player rejected")
+			conn.WriteMessage(websocket.TextMessage, []byte("player rejected"))
+			return
+		}
 
-		go player.Run(conn);
 	}
 }
+
+
 
 func LogoutHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {

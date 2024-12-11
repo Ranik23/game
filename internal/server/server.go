@@ -56,7 +56,7 @@ func (s *Server) setUpRoutes() {
 	s.router.GET("/home", handlers.WelcomeHandler(s.UserOperator, s.router))
 	s.router.GET("/home/role", handlers.RoleHandler(s.UserOperator, s.router))
 
-	s.router.GET("/home/role/login", middlewares.RoleMiddleware(s.UserOperator, s.router), handlers.LoginHandlerGET(s.UserOperator, s.router))
+	s.router.GET("/home/role/login", handlers.LoginHandlerGET(s.UserOperator, s.router))
 	s.router.POST("/home/role/login", handlers.LoginHandlerPOST(s.UserOperator, s.router))
 
 	s.router.GET("/ws/admin", handlers.AdminWebSocketHandler(s.UserOperator, s.router))
@@ -65,7 +65,7 @@ func (s *Server) setUpRoutes() {
 	s.router.GET("/home/role/player-panel", handlers.MainHandler(s.UserOperator, s.router))
 
 	protected := s.router.Group("/home/role")
-	protected.Use(middlewares.AuthMiddleware(s.UserOperator, s.router), middlewares.WelcomeMiddleware(s.UserOperator, s.router))
+	protected.Use(middlewares.RoleMiddleware(s.UserOperator, s.router), middlewares.AuthMiddleware(s.UserOperator, s.router), middlewares.WelcomeMiddleware(s.UserOperator, s.router))
 	{
 		protected.GET("/logout", handlers.LogoutHandler(s.UserOperator, s.router))
 		protected.GET("/admin-panel", handlers.AdminMainHandler(s.UserOperator, s.router))

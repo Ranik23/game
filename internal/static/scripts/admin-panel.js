@@ -1,18 +1,13 @@
 let socket;
-let retryCount = 0;
-const maxRetries = 3;
-let reconnectTimeout;
 let playersUpdateInterval;
 
+// Функция для создания WebSocket соединения для админа
 function createWebSocketAdmin() {
     socket = new WebSocket(`ws://${window.location.host}/ws/admin`);
 
     socket.onopen = () => {
         console.log("WebSocket подключен для админа");
-        retryCount = 0; // Сбросить счетчик попыток
-        clearTimeout(reconnectTimeout); // Очистить таймер переподключения
 
-        // Установить таймер для регулярного обновления списка игроков
         if (!playersUpdateInterval) {
             playersUpdateInterval = setInterval(() => {
                 if (socket.readyState === WebSocket.OPEN) {
@@ -30,6 +25,7 @@ function createWebSocketAdmin() {
 
             if (data.action === "players_list") {
                 displayPlayers(data.content); // Обновление списка игроков
+                console.log("Список игроков принят")
             } else if (data.action === "player_accepted") {
                 console.log("Игрок принят");
             } else if (data.action === "player_rejected") {
@@ -42,44 +38,12 @@ function createWebSocketAdmin() {
 
     socket.onclose = () => {
         console.log("WebSocket закрыт");
-        clearInterval(playersUpdateInterval);
-        playersUpdateInterval = null;
-
-        // Попробовать переподключиться
-        if (retryCount < maxRetries) {
-            retryCount++;
-            console.log(`Попытка переподключения (${retryCount}/${maxRetries})...`);
-            reconnectTimeout = setTimeout(createWebSocketAdmin, 2000 * retryCount); // Увеличиваем задержку
-        } else {
-            console.error("Превышено количество попыток переподключения.");
-        }
     };
 
     socket.onerror = (error) => {
         console.error("Ошибка WebSocket:", error);
     };
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    const playersList = document.getElementById("playersList");
-
-    playersList.addEventListener("click", (event) => {
-        const target = event.target;
-
-        if (target.classList.contains("accept-btn")) {
-            const userId = target.closest("li").dataset.userId;
-            alert(`Игрок с ID ${userId} принят`);
-            sendWebSocketMessage({ Action: "accept_player", Data: userId });
-        }
-
-        if (target.classList.contains("remove-btn")) {
-            const userId = target.closest("li").dataset.userId;
-            alert(`Игрок с ID ${userId} удалён`);
-            sendWebSocketMessage({ Action: "delete_player", Data: userId });
-            target.closest("li").remove(); // Удаляет элемент из списка
-        }
-    });
-});
 
 // Универсальная функция отправки сообщений
 function sendWebSocketMessage(message) {
@@ -114,6 +78,29 @@ function displayPlayers(players) {
         console.log("Нет игроков для отображения");
     }
 }
+
+// Обработчик событий для кнопок на странице
+document.addEventListener("DOMContentLoaded", () => {
+    const playersList = document.getElementById("playersList");
+
+    playersList.addEventListener("click", (event) => {
+        const target = event.target;
+
+        if (target.classList.contains("accept-btn")) {
+            const userId = target.closest("li").dataset.userId;
+            alert(`Игрок с ID ${userId} принят`);
+            sendWebSocketMessage({ Action: "accept_player", Data: userId });
+            target.closest("li").remove();
+        }
+
+        if (target.classList.contains("remove-btn")) {
+            const userId = target.closest("li").dataset.userId;
+            alert(`Игрок с ID ${userId} удалён`);
+            sendWebSocketMessage({ Action: "delete_player", Data: userId });
+            target.closest("li").remove();
+        }
+    });
+});
 
 // Запускаем WebSocket
 createWebSocketAdmin();

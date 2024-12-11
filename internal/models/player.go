@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"log"
 	"log/slog"
 
 	"github.com/gorilla/websocket"
@@ -42,21 +41,6 @@ var (
 )
 
 func (p *Player) Run(connection *websocket.Conn) error {
-	select {
-	case <-p.Accepted:
-		p.Logger.Info("A player has been accepted", slog.Int("ID", p.ID))
-	case <-p.Rejected:
-		p.Logger.Info("A player has been rejected", slog.Int("ID", p.ID))
-		return ErrRejectedByAdmin
-	}
-
-	log.Println("Waiting for the game start")
-
-	<-p.GameStarted
-
-	for {
-
-
-
-	}
+	defer connection.Close()
+	return nil
 }
