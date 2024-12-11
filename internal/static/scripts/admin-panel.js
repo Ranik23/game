@@ -3,6 +3,7 @@ let playersUpdateInterval;
 
 // Функция для создания WebSocket соединения для админа
 function createWebSocketAdmin() {
+    
     socket = new WebSocket(`ws://${window.location.host}/ws/admin`);
 
     socket.onopen = () => {
@@ -30,7 +31,7 @@ function createWebSocketAdmin() {
                 console.log("Игрок принят");
             } else if (data.action === "player_rejected") {
                 console.log("Игрок отклонён");
-            }
+            } 
         } catch (error) {
             console.error("Ошибка обработки сообщения:", error);
         }

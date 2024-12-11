@@ -17,12 +17,11 @@ type Player struct {
 	Logger   	*slog.Logger  	`json:"-"`
 }
 
-func NewPlayer(id int, name string, logger *slog.Logger) *Player {
+func NewPlayer(id int, name string) *Player {
 	return &Player{
 		ID:       id,
 		UserName: name,
 		Accepted: make(chan struct{}),
-		Logger: logger,
 	}
 }
 
@@ -42,5 +41,11 @@ var (
 
 func (p *Player) Run(connection *websocket.Conn) error {
 	defer connection.Close()
+
+
+
+	for {
+		
+	}
 	return nil
 }

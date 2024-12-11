@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"encoding/json"
 	"game/internal/models"
 	"game/internal/usecase"
 	"log"
-	"log/slog"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -111,6 +111,24 @@ func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin
 	}
 }
 
+
+func sendErrorMessage(conn *websocket.Conn, action, message string) {
+    errMsg := map[string]string{
+        "action":  action,
+        "message": message,
+    }
+    msgBytes, err := json.Marshal(errMsg)
+    if err != nil {
+        log.Println("Failed to marshal error message:", err)
+        return
+    }
+
+    if err := conn.WriteMessage(websocket.TextMessage, msgBytes); err != nil {
+        log.Println("Failed to send error message:", err)
+    }
+}
+
+
 func ClientWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -120,38 +138,33 @@ func ClientWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gi
 			return
 		}
 
-		defer func() {
-			conn.Close()
-			log.Println("Connection closed!")
-		}()
-
 		exceeded, err := userOperator.PlayersNumberExceeded()
 		if err != nil {
-			conn.WriteMessage(websocket.TextMessage, []byte("internal server error"))
+			sendErrorMessage(conn, "internal_error", "Failed to check the numbers of players")
 			log.Println("Failed to check the numbers of players:", err)
 			return
 		}
 
 		logged, err := userOperator.IsAdminLoggedIn()
 		if err != nil {
-			conn.WriteMessage(websocket.TextMessage, []byte("internal server error"))
+			sendErrorMessage(conn, "internal_error", "Failed to check the admin on redis")
 			log.Println("Failed to check the admin on redis:", err)
 			return
 		}
 
 		if !logged {
-			conn.WriteMessage(websocket.TextMessage, []byte("admin not logged yet"))
+			sendErrorMessage(conn, "admin_not_logged", "Admin is not logged yet")
 			log.Println("Admin is not logged in yet")
 			return
 		}
 
 		if exceeded {
-			conn.WriteMessage(websocket.TextMessage, []byte("players exceeded"))
-			log.Println("9 players are already there")
+			sendErrorMessage(conn, "players_exceeded", "Players Limit Exceeded")
+			log.Println("Players Limit Exceeded")
 			return
 		}
 
-		player := models.NewPlayer(userOperator.CountPlayers() + 1, "Name", slog.Default())
+		player := models.NewPlayer(userOperator.CountPlayers() + 1, "Name")
 
 		if err := userOperator.AddPlayer(player); err != nil {
 			log.Printf("Failed to add a player: %v", err)
@@ -161,13 +174,14 @@ func ClientWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gi
 		case <-player.Accepted:
 			log.Println("player accepted")
 			conn.WriteMessage(websocket.TextMessage, []byte("player accepted"))
+			go player.Run(conn)
 			return
 		case <-player.Rejected:
 			log.Println("player rejected")
 			conn.WriteMessage(websocket.TextMessage, []byte("player rejected"))
+			conn.Close()
 			return
 		}
-
 	}
 }
 

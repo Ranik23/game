@@ -11,9 +11,22 @@ function createWebSocket() {
     };
 
     socket.onmessage = (event) => {
-        console.log("Сообщение получено:", event.data);
-        displayMessage(`Сервер: ${event.data}`); // Отобразить сообщение от сервера
-    };
+ 
+        const data = JSON.parse(event.data);
+
+        if (data.action === "players_exceeded") {
+            console.log("Ошибка: ", data.message)
+            socket.onerror(new Error(data.message))
+        } else if (data.action === "internal_error") {
+            console.log("Ошибка: ", data.message)
+            socket.onerror(new Error(data.message))
+        } else if (data.action === "admin_not_logged") {
+            console.log("Ошибка: ", data.message)
+            alert("Администратор еще не присоединился")
+            window.location.href = "/home/role" // TODO: 
+           // socket.onerror(new Error(data.message))
+        }
+    }
 
     socket.onclose = () => {
         console.log("WebSocket закрыт.");
@@ -22,7 +35,8 @@ function createWebSocket() {
     socket.onerror = (error) => {
         console.error("Ошибка WebSocket:", error);
     };
-}
+    }
+
 
 // Функция для отображения сообщений в UI
 function displayMessage(message) {
@@ -53,5 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
 
 createWebSocket();
