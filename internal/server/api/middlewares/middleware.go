@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"game/internal/usecase"
 	"log"
 	"net/http"
 
@@ -9,38 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func EnsureHomeVisited() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
-		username := session.Get("username")
-		if username == nil {
-			c.Redirect(http.StatusFound, "/home/role/login")
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
-}
-
-func RoleMiddleware(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		role := session.Get("role")
-		if role == nil || role == "" {
-			log.Println("need to choose the role first")
-			c.Redirect(http.StatusFound, "/home/role")
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
-}
-
-func WelcomeMiddleware(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		welcome := session.Get("welcome")
-		if welcome == nil {
+		home_visited := session.Get("home_visited")
+		if home_visited == nil {
+			log.Println("/home is not visited")
 			c.Redirect(http.StatusFound, "/home")
 			c.Abort()
 			return
@@ -48,3 +21,33 @@ func WelcomeMiddleware(userOperator usecase.UseCase, router *gin.Engine) gin.Han
 		c.Next()
 	}
 }
+
+func EnsureRoleSelectionVisited() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		roleSelection_visited := session.Get("roleSelection_visited")
+		if roleSelection_visited == nil {
+			log.Println("/role is not visited")
+			c.Redirect(http.StatusFound, "/role")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
+
+func EnsureLoginVisited() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		login_visited := session.Get("login_visited")
+		if login_visited == nil {
+			log.Println("/role/login is not visited")
+			c.Redirect(http.StatusFound, "/role/login")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+

@@ -23,7 +23,7 @@ function createWebSocket() {
         } else if (data.action === "admin_not_logged") {
             console.log("Ошибка: ", data.message)
             alert("Администратор еще не присоединился")
-            window.location.href = "/home/role" // TODO: 
+            window.location.href = "/role" // TODO: 
            // socket.onerror(new Error(data.message))
         }
     }

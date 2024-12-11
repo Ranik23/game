@@ -41,31 +41,32 @@ func NewServer(config *config.Config, logger *slog.Logger, router *gin.Engine, u
 }
 
 func (s *Server) setUpRoutes() {
-	s.router.GET("/", func(g *gin.Context) {
-		g.Redirect(http.StatusFound, "/home")
+
+	s.router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/home")
 	})
 
 	s.router.GET("/contacts", func(g *gin.Context) {
 		g.HTML(http.StatusOK, "contacts.html", nil)
-	})
+	}, middlewares.EnsureHomeVisited())
 
 	s.router.GET("/about", func(g *gin.Context) {
 		g.HTML(http.StatusOK, "about.html", nil)
-	})
+	}, middlewares.EnsureHomeVisited())
 
 	s.router.GET("/home", handlers.WelcomeHandler(s.UserOperator, s.router))
-	s.router.GET("/home/role", handlers.RoleHandler(s.UserOperator, s.router))
+	s.router.GET("/role", middlewares.EnsureHomeVisited(), handlers.RoleHandler(s.UserOperator, s.router))
 
-	s.router.GET("/home/role/login", handlers.LoginHandlerGET(s.UserOperator, s.router))
-	s.router.POST("/home/role/login", handlers.LoginHandlerPOST(s.UserOperator, s.router))
+	s.router.GET("/role/login", middlewares.EnsureHomeVisited(), middlewares.EnsureRoleSelectionVisited(), handlers.LoginHandlerGET(s.UserOperator, s.router))
+	s.router.POST("/role/login", handlers.LoginHandlerPOST(s.UserOperator, s.router))
 
 	s.router.GET("/ws/admin", handlers.AdminWebSocketHandler(s.UserOperator, s.router))
 	s.router.GET("/ws/player", handlers.ClientWebSocketHandler(s.UserOperator, s.router))
 
-	s.router.GET("/home/role/player-panel", handlers.MainHandler(s.UserOperator, s.router))
-
-	protected := s.router.Group("/home/role")
-	protected.Use(middlewares.RoleMiddleware(s.UserOperator, s.router), middlewares.AuthMiddleware(s.UserOperator, s.router), middlewares.WelcomeMiddleware(s.UserOperator, s.router))
+	s.router.GET("/role/player-panel", middlewares.EnsureHomeVisited(), middlewares.EnsureRoleSelectionVisited(), handlers.MainHandler(s.UserOperator, s.router))
+	// TODO: ОН ВСЕ РАВНО ПОЗВОЛЯЕТ ПЕРЕЙТИ, ХОТЯ МИДДЛВАРЫ СТОЯТ
+	protected := s.router.Group("/role")
+	protected.Use(middlewares.EnsureHomeVisited(), middlewares.EnsureRoleSelectionVisited(), middlewares.EnsureLoginVisited())
 	{
 		protected.GET("/logout", handlers.LogoutHandler(s.UserOperator, s.router))
 		protected.GET("/admin-panel", handlers.AdminMainHandler(s.UserOperator, s.router))

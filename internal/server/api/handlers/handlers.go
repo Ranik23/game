@@ -21,7 +21,7 @@ var upgrader = websocket.Upgrader{
 func WelcomeHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		session := sessions.Default(g)
-		session.Set("welcome", "true")
+		session.Set("home_visited", "true")
 		session.Save()
 		g.HTML(http.StatusOK, "welcome.html", gin.H{})
 	}
@@ -30,7 +30,7 @@ func WelcomeHandler(userOperator usecase.UseCase, router *gin.Engine) gin.Handle
 func RoleHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		session := sessions.Default(g)
-		session.Set("role", "yes")
+		session.Set("roleSelection_visited", "true")
 		session.Save()
 		g.HTML(http.StatusOK, "role.html", gin.H{})
 	}
@@ -47,16 +47,14 @@ func LoginHandlerPOST(userOperator usecase.UseCase, router *gin.Engine) gin.Hand
 		username := c.PostForm("username")
 		password := c.PostForm("password")
 
-		log.Println("Username:", username, "Password:", password)
-
 		if username == "admin" && password == "123" {
 			session := sessions.Default(c)
-			session.Set("username", username)
+			session.Set("login_visited", true)
 			session.Save()
 
 			c.JSON(http.StatusOK, gin.H{
 				"message":  "login success",
-				"redirect": "/home/role/admin-panel",
+				"redirect": "/role/admin-panel",
 			})
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -90,7 +88,8 @@ func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin
 
 		if logged {
 			log.Println("Admin is already logged in. Redirecting...")
-			c.Redirect(http.StatusFound, "/home/role/login")
+			c.AbortWithStatus(http.StatusInternalServerError)
+			//c.Redirect(http.StatusFound, "/role/login") // TODO: не работает
 			return
 		}
 
@@ -192,6 +191,6 @@ func LogoutHandler(userOperator usecase.UseCase, router *gin.Engine) gin.Handler
 		session := sessions.Default(c)
 		session.Clear()
 		session.Save()
-		c.Redirect(http.StatusFound, "/home/role/login")
+		c.Redirect(http.StatusFound, "/role/login")
 	}
 }
