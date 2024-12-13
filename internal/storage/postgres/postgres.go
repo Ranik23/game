@@ -1,18 +1,12 @@
 package postgres
 
 import (
-	// "context"
-	// "game/internal/session"
-	// "time"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 
-type Storage interface {
-	
-}
+type Storage interface {}
 
 
 type PostgresClient struct {

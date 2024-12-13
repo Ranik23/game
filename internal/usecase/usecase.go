@@ -59,7 +59,7 @@ func (operator* userOperator) AddAdmin(admin *models.Admin) error {
 
 	operator.Admin = admin 
 
-	return operator.redisClient.Set(context.Background(), "admin_logged", "true") // TODO: а если ошибка тут, а админа мы уже добавили
+	return operator.redisClient.Set(context.Background(), "admin_logged", "true") 
 }
 
 
@@ -72,7 +72,6 @@ func (operator *userOperator) IsAdminLoggedIn() (bool, error) {
 	} else {
 		return false, nil
 	} 
-	// TODO: пока убрать ошибку в возвращаемом значении
 }
 
 func (operator *userOperator) PlayersNumberExceeded() (bool, error) {

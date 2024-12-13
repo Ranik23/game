@@ -69,9 +69,5 @@ func (p *Player) Run(connection *websocket.Conn) error {
 		case "":
 			
 		}
-
-
-
-
 	}
 }

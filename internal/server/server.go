@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -64,7 +63,7 @@ func (s *Server) setUpRoutes() {
 	s.router.GET("/ws/player", handlers.ClientWebSocketHandler(s.UserOperator, s.router))
 
 	s.router.GET("/role/player-panel", middlewares.EnsureHomeVisited(), middlewares.EnsureRoleSelectionVisited(), handlers.MainHandler(s.UserOperator, s.router))
-	// TODO: ОН ВСЕ РАВНО ПОЗВОЛЯЕТ ПЕРЕЙТИ, ХОТЯ МИДДЛВАРЫ СТОЯТ
+
 	protected := s.router.Group("/role")
 	protected.Use(middlewares.EnsureHomeVisited(), middlewares.EnsureRoleSelectionVisited(), middlewares.EnsureLoginVisited())
 	{
@@ -78,7 +77,8 @@ func (s *Server) setUpHTMLFiles(pattern string) {
 }
 
 func (s *Server) setUpStaticFiles() {
-	s.router.Static("/static", filepath.Join(os.Getenv("HOME"), "game/internal/static/scripts"))
+	staticPath := filepath.Join(os.Getenv("HOME"), "game/internal/static/scripts")
+	s.router.Static("/static", staticPath)
 }
 
 func (s *Server) Run() {
