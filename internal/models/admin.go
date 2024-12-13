@@ -14,7 +14,7 @@ type Admin struct {
 }
 
 type PlayersInfo struct {
-	Action  string    `json:"action"`
+	Action  string   `json:"action"`
 	Content []Player `json:"content"`
 }
 
@@ -28,7 +28,7 @@ func NewAdmin(name string) *Admin {
 	}
 }
 
-func writeJSONWithLog(conn *websocket.Conn, message interface{}) error {
+func writeJSONWithLog(conn *websocket.Conn, message map[string]interface{}) error {
 	data, err := json.Marshal(message)
 	if err != nil {
 		log.Printf("Failed to marshal message: %v", err)
@@ -41,30 +41,8 @@ func writeJSONWithLog(conn *websocket.Conn, message interface{}) error {
 func (a *Admin) Run(connection *websocket.Conn) error {
 	defer connection.Close()
 
-	actionHandlers := map[string]func(a *Admin, conn *websocket.Conn, data string) error{
-		"get_players": func(a *Admin, conn *websocket.Conn, data string) error {
-			return a.getPlayers(conn)
-		},
-		"accept_player": func(a *Admin, conn *websocket.Conn, data string) error {
-			id, err := strconv.Atoi(data)
-			if err != nil {
-				return fmt.Errorf("invalid player ID: %v", err)
-			}
-			return a.acceptPlayer(conn, id)
-		},
-		"delete_player": func(a *Admin, conn *websocket.Conn, data string) error {
-			id, err := strconv.Atoi(data)
-			if err != nil {
-				return fmt.Errorf("invalid player ID: %v", err)
-			}
-			return a.rejectPlayer(conn, id)
-		},
-		"start_game": func(a *Admin, conn *websocket.Conn, data string) error {
-			return a.startGame(conn)
-		},
-	}
-
 	for {
+
 		t, message, err := connection.ReadMessage()
 		if err != nil {
 			log.Printf("Failed to read the message: %v", err)
@@ -76,72 +54,54 @@ func (a *Admin) Run(connection *websocket.Conn) error {
 			continue
 		}
 
-		var input struct {
-			Action string `json:"action"`
-			Data   string `json:"data"`
-		}
+		var input map[string]interface{}
+
 		if err := json.Unmarshal(message, &input); err != nil {
 			log.Printf("Failed to parse message: %v", err)
 			continue
 		}
 
-		if handler, ok := actionHandlers[input.Action]; ok {
-			if err := handler(a, connection, input.Data); err != nil {
-				log.Printf("Error handling action %s: %v", input.Action, err)
+		if action, ok := input["Action"].(string); !ok {
+			switch action {
+			case "get_players":
+				return a.getPlayers(connection)
+			case "accept_player":
+				id, ok := input["PlayerID"].(int)
+				if !ok {
+					log.Printf("Invalid player ID: %v", id)
+					continue
+				}
+				return a.acceptPlayer(connection, id)
+			case "reject_player":
+				id, ok := input["PlayerID"].(int)
+				if !ok {
+					log.Printf("Invalid player ID: %v", id)
+					continue
+				}
+				return a.rejectPlayer(connection, id)
+			case "start_game":
+				return a.startGame(connection)
 			}
-		} else {
-			log.Printf("Unsupported action: %s", input.Action)
-			connection.WriteMessage(websocket.TextMessage, []byte("error: unsupported action"))
 		}
 	}
 }
 
 func (a *Admin) getPlayers(connection *websocket.Conn) error {
 	var new_players []Player
+
+	var message map[string]interface{}
+
 	for _, player := range a.Players {
 		new_players = append(new_players, Player{
-			ID:   player.ID,
+			ID:       player.ID,
 			UserName: player.UserName,
-	})}
-
-	message := map[string]interface{} {
-		"Action" : "players_list",
-		"Content" : new_players,
+		})
 	}
-
+	message = map[string]interface{}{
+		"Action": "players_list",
+		"Players": new_players,
+	}
 	return writeJSONWithLog(connection, message)
-}
-
-func (a *Admin) handlePlayer(connection *websocket.Conn, id int, action string) error {
-	for index, player := range a.Players {
-		if player.ID == id {
-			switch action {
-			case "accept":
-				player.Accepted <- struct{}{}
-				message := map[string]string{
-					"Action":   "player_accepted",
-					"UserName": player.UserName,
-					"ID":       strconv.Itoa(player.ID),
-				}
-				a.Players = append(a.Players, player)
-				return writeJSONWithLog(connection, message)
-
-			case "reject":
-				player.Rejected <- struct{}{}
-				message := map[string]string{
-					"Action":   "player_rejected",
-					"UserName": player.UserName,
-					"ID":       strconv.Itoa(player.ID),
-				}
-				if err := writeJSONWithLog(connection, message); err != nil {
-					return err
-				}
-				a.Players = append(a.Players[:index], a.Players[index+1:]...)
-				return nil
-			}
-		}
-	}
-	return ErrPlayerNotFound
 }
 
 func (a *Admin) acceptPlayer(connection *websocket.Conn, id int) error {
@@ -156,10 +116,41 @@ func (a *Admin) startGame(connection *websocket.Conn) error {
 	for _, player := range a.Players {
 		player.GameStarted <- struct{}{}
 	}
-
-	message := map[string]string{
-		"type":    "game_started",
-		"message": "The game has started!",
+	message := map[string]interface{}{
+		"Action":  "game_started",
+		"Message": "The game has started!",
 	}
 	return writeJSONWithLog(connection, message)
+}
+
+func (a *Admin) handlePlayer(connection *websocket.Conn, id int, action string) error {
+	for index, player := range a.Players {
+		if player.ID == id {
+			switch action {
+			case "accept":
+				player.Accepted <- struct{}{}
+				message := map[string]interface{}{
+					"Action":   "player_accepted",
+					"UserName": player.UserName,
+					"ID":       strconv.Itoa(player.ID),
+				}
+				a.Players = append(a.Players, player)
+				return writeJSONWithLog(connection, message)
+
+			case "reject":
+				player.Rejected <- struct{}{}
+				message := map[string]interface{}{
+					"Action":   "player_rejected",
+					"UserName": player.UserName,
+					"ID":       strconv.Itoa(player.ID),
+				}
+				if err := writeJSONWithLog(connection, message); err != nil {
+					return err
+				}
+				a.Players = append(a.Players[:index], a.Players[index+1:]...)
+				return nil
+			}
+		}
+	}
+	return ErrPlayerNotFound
 }

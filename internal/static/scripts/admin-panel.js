@@ -1,7 +1,6 @@
 let socket;
 let playersUpdateInterval;
 
-// Функция для создания WebSocket соединения для админа
 function createWebSocketAdmin() {
     
     socket = new WebSocket(`ws://${window.location.host}/ws/admin`);
@@ -23,13 +22,13 @@ function createWebSocketAdmin() {
         try {
             const data = JSON.parse(event.data);
             console.log("Сообщение получено:", data);
-            if (data.action === "players_list") {
-                displayPlayers(data.content);
+            if (data.Action === "players_list") {
+                displayPlayers(data.Players);
                 console.log("Список игроков принят")
-            } else if (data.action === "player_accepted") {
-                console.log("Игрок принят");
-            } else if (data.action === "player_rejected") {
-                console.log("Игрок отклонён");
+            } else if (data.Action === "player_accepted") {
+                console.log("Игрок" + data.UserName + "принят");
+            } else if (data.Action === "player_rejected") {
+                console.log("Игрок" + data.UserName + "отвергнут");
             } 
         } catch (error) {
             console.error("Ошибка обработки сообщения:", error);
@@ -45,7 +44,6 @@ function createWebSocketAdmin() {
     };
 }
 
-// Универсальная функция отправки сообщений
 function sendWebSocketMessage(message) {
     try {
         if (socket && socket.readyState === WebSocket.OPEN) {
@@ -100,5 +98,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Запускаем WebSocket
 createWebSocketAdmin();

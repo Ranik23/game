@@ -20,22 +20,21 @@ type UseCase interface {
 	PlayersNumberExceeded() (bool, error)
 }
 
-
 type userOperator struct {
 	postgresClient postgres.Storage
-	redisClient	   redis.Redis
-	logger 		   *slog.Logger
-	Admin 		   *models.Admin
-	mutex sync.Mutex
+	redisClient    redis.Redis
+	logger         *slog.Logger
+	Admin          *models.Admin
+	mutex          sync.Mutex
 }
 
 func NewUseCase(postgres *postgres.PostgresClient,
-				redis *redis.RedisClient,
-				logger *slog.Logger) *userOperator {
+	redis *redis.RedisClient,
+	logger *slog.Logger) *userOperator {
 	return &userOperator{
 		postgresClient: postgres,
 		redisClient:    redis,
-		logger: logger,
+		logger:         logger,
 	}
 }
 
@@ -52,16 +51,14 @@ func (operator *userOperator) AddPlayer(player *models.Player) error {
 	return nil
 }
 
-
-func (operator* userOperator) AddAdmin(admin *models.Admin) error {
+func (operator *userOperator) AddAdmin(admin *models.Admin) error {
 	operator.mutex.Lock()
 	defer operator.mutex.Unlock()
 
-	operator.Admin = admin 
+	operator.Admin = admin
 
-	return operator.redisClient.Set(context.Background(), "admin_logged", "true") 
+	return operator.redisClient.Set(context.Background(), "admin_logged", "true")
 }
-
 
 func (operator *userOperator) IsAdminLoggedIn() (bool, error) {
 	operator.mutex.Lock()
@@ -71,7 +68,7 @@ func (operator *userOperator) IsAdminLoggedIn() (bool, error) {
 		return true, nil
 	} else {
 		return false, nil
-	} 
+	}
 }
 
 func (operator *userOperator) PlayersNumberExceeded() (bool, error) {
@@ -79,5 +76,3 @@ func (operator *userOperator) PlayersNumberExceeded() (bool, error) {
 	defer operator.mutex.Unlock()
 	return false, nil
 }
-
-
