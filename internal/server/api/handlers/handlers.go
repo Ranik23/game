@@ -14,7 +14,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func WelcomeHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func WelcomeHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		session := sessions.Default(g)
 		session.Set("home_visited", "true")
@@ -23,7 +23,7 @@ func WelcomeHandler(userOperator usecase.UseCase, router *gin.Engine) gin.Handle
 	}
 }
 
-func RoleHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func RoleHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		session := sessions.Default(g)
 		session.Set("roleSelection_visited", "true")
@@ -32,13 +32,13 @@ func RoleHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFu
 	}
 }
 
-func LoginHandlerGET(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func LoginHandlerGET(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		g.HTML(http.StatusOK, "login.html", gin.H{})
 	}
 }
 
-func LoginHandlerPOST(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username := c.PostForm("username")
 		password := c.PostForm("password")
@@ -60,19 +60,19 @@ func LoginHandlerPOST(userOperator usecase.UseCase, router *gin.Engine) gin.Hand
 	}
 }
 
-func MainHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func MainHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		g.HTML(http.StatusOK, "player-panel.html", gin.H{})
 	}
 }
 
-func AdminMainHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func AdminMainHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		g.HTML(http.StatusOK, "admin-panel.html", gin.H{})
 	}
 }
 
-func LogoutHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func LogoutHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 		session.Clear()

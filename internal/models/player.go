@@ -2,14 +2,9 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"log/slog"
 	"github.com/gorilla/websocket"
-)
-
-var (
-	ErrRejectedByAdmin = fmt.Errorf("a player has been rejected by admin")
 )
 
 type Player struct {

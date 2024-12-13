@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"strconv"
 	"github.com/gorilla/websocket"
@@ -18,9 +17,6 @@ type PlayersInfo struct {
 	Content []Player `json:"content"`
 }
 
-var (
-	ErrPlayerNotFound = fmt.Errorf("player not found")
-)
 
 func NewAdmin(name string) *Admin {
 	return &Admin{

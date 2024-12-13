@@ -53,22 +53,32 @@ func (s *Server) setUpRoutes() {
 		g.HTML(http.StatusOK, "about.html", nil)
 	}, middlewares.EnsureHomeVisited())
 
-	s.router.GET("/home", handlers.WelcomeHandler(s.UserOperator, s.router))
-	s.router.GET("/role", middlewares.EnsureHomeVisited(), handlers.RoleHandler(s.UserOperator, s.router))
+	s.router.GET("/home", handlers.WelcomeHandler(s.UserOperator))
+	s.router.GET("/role", middlewares.EnsureHomeVisited(), handlers.RoleHandler(s.UserOperator))
 
-	s.router.GET("/role/login", middlewares.EnsureHomeVisited(), middlewares.EnsureRoleSelectionVisited(), handlers.LoginHandlerGET(s.UserOperator, s.router))
-	s.router.POST("/role/login", handlers.LoginHandlerPOST(s.UserOperator, s.router))
+	s.router.GET("/role/login",
+				middlewares.EnsureHomeVisited(),
+				middlewares.EnsureRoleSelectionVisited(),
+				handlers.LoginHandlerGET(s.UserOperator))
+				
+	s.router.POST("/role/login", handlers.LoginHandlerPOST(s.UserOperator))
 
-	s.router.GET("/ws/admin", handlers.AdminWebSocketHandler(s.UserOperator, s.router))
-	s.router.GET("/ws/player", handlers.ClientWebSocketHandler(s.UserOperator, s.router))
+	s.router.GET("/ws/admin", handlers.AdminWebSocketHandler(s.UserOperator))
+	s.router.GET("/ws/player", handlers.ClientWebSocketHandler(s.UserOperator))
 
-	s.router.GET("/role/player-panel", middlewares.EnsureHomeVisited(), middlewares.EnsureRoleSelectionVisited(), handlers.MainHandler(s.UserOperator, s.router))
+	s.router.GET("/role/player-panel",
+				middlewares.EnsureHomeVisited(),
+				middlewares.EnsureRoleSelectionVisited(),
+				handlers.MainHandler(s.UserOperator))
 
 	protected := s.router.Group("/role")
-	protected.Use(middlewares.EnsureHomeVisited(), middlewares.EnsureRoleSelectionVisited(), middlewares.EnsureLoginVisited())
+	protected.Use(
+		middlewares.EnsureHomeVisited(),
+		middlewares.EnsureRoleSelectionVisited(),
+		middlewares.EnsureLoginVisited())
 	{
-		protected.GET("/logout", handlers.LogoutHandler(s.UserOperator, s.router))
-		protected.GET("/admin-panel", handlers.AdminMainHandler(s.UserOperator, s.router))
+		protected.GET("/logout", handlers.LogoutHandler(s.UserOperator))
+		protected.GET("/admin-panel", handlers.AdminMainHandler(s.UserOperator))
 	}
 }
 

@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
+func AdminWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
