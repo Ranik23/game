@@ -15,7 +15,7 @@ type Admin struct {
 
 type PlayersInfo struct {
 	Action  string    `json:"action"`
-	Content []*Player `json:"content"`
+	Content []Player `json:"content"`
 }
 
 var (
@@ -65,7 +65,6 @@ func (a *Admin) Run(connection *websocket.Conn) error {
 	}
 
 	for {
-
 		t, message, err := connection.ReadMessage()
 		if err != nil {
 			log.Printf("Failed to read the message: %v", err)
@@ -98,7 +97,19 @@ func (a *Admin) Run(connection *websocket.Conn) error {
 }
 
 func (a *Admin) getPlayers(connection *websocket.Conn) error {
-	return writeJSONWithLog(connection, PlayersInfo{Action: "players_list", Content: a.Players})
+	var new_players []Player
+	for _, player := range a.Players {
+		new_players = append(new_players, Player{
+			ID:   player.ID,
+			UserName: player.UserName,
+	})}
+
+	message := map[string]interface{} {
+		"Action" : "players_list",
+		"Content" : new_players,
+	}
+
+	return writeJSONWithLog(connection, message)
 }
 
 func (a *Admin) handlePlayer(connection *websocket.Conn, id int, action string) error {
@@ -112,6 +123,7 @@ func (a *Admin) handlePlayer(connection *websocket.Conn, id int, action string) 
 					"UserName": player.UserName,
 					"ID":       strconv.Itoa(player.ID),
 				}
+				a.Players = append(a.Players, player)
 				return writeJSONWithLog(connection, message)
 
 			case "reject":

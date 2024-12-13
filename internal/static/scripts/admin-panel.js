@@ -23,9 +23,8 @@ function createWebSocketAdmin() {
         try {
             const data = JSON.parse(event.data);
             console.log("Сообщение получено:", data);
-
             if (data.action === "players_list") {
-                displayPlayers(data.content); // Обновление списка игроков
+                displayPlayers(data.content);
                 console.log("Список игроков принят")
             } else if (data.action === "player_accepted") {
                 console.log("Игрок принят");
@@ -59,17 +58,16 @@ function sendWebSocketMessage(message) {
     }
 }
 
-// Функция для отображения списка игроков
 function displayPlayers(players) {
     const playersList = document.getElementById("playersList");
-    playersList.innerHTML = ""; // Очистка предыдущего содержимого
+    playersList.innerHTML = ""; 
 
     if (Array.isArray(players) && players.length > 0) {
         players.forEach((player) => {
             const playerElement = document.createElement("li");
-            playerElement.dataset.userId = player.id; // Уникальный идентификатор игрока
+            playerElement.dataset.userId = player.id;
             playerElement.innerHTML = `
-                <span class="player-name">${player.name}</span>
+                <span class="player-name">${player.userName}</span>
                 <button class="accept-btn">Принять</button>
                 <button class="remove-btn">Удалить</button>
             `;
@@ -80,7 +78,6 @@ function displayPlayers(players) {
     }
 }
 
-// Обработчик событий для кнопок на странице
 document.addEventListener("DOMContentLoaded", () => {
     const playersList = document.getElementById("playersList");
 

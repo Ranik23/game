@@ -79,23 +79,22 @@ func AdminMainHandler(userOperator usecase.UseCase, router *gin.Engine) gin.Hand
 func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			log.Println("Failed to upgrade to WebSocket:", err)
+			return
+		}
+
 		logged, err := userOperator.IsAdminLoggedIn()
 		if err != nil {
 			log.Println("Failed to check the admin:", err)
-			c.AbortWithStatus(http.StatusInternalServerError)
+			sendMessage(conn, "error", "Failed to check the admin")
 			return
 		}
 
 		if logged {
 			log.Println("Admin is already logged in. Redirecting...")
-			c.AbortWithStatus(http.StatusInternalServerError)
-			//c.Redirect(http.StatusFound, "/role/login") // TODO: не работает
-			return
-		}
-
-		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-		if err != nil {
-			log.Println("Failed to upgrade to WebSocket:", err)
+			sendMessage(conn, "redirect", "/role/admin-panel")
 			return
 		}
 
@@ -103,6 +102,7 @@ func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin
 
 		if err := userOperator.AddAdmin(admin); err != nil {
 			log.Printf("Failed to add an admin: %v", err)
+			sendMessage(conn, "error", "Failed to add an admin")
 			return
 		}
 
@@ -111,7 +111,7 @@ func AdminWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gin
 }
 
 
-func sendErrorMessage(conn *websocket.Conn, action, message string) {
+func sendMessage(conn *websocket.Conn, action, message string) {
     errMsg := map[string]string{
         "action":  action,
         "message": message,
@@ -139,33 +139,34 @@ func ClientWebSocketHandler(userOperator usecase.UseCase, router *gin.Engine) gi
 
 		exceeded, err := userOperator.PlayersNumberExceeded()
 		if err != nil {
-			sendErrorMessage(conn, "internal_error", "Failed to check the numbers of players")
+			sendMessage(conn, "error", "Failed to check the numbers of players")
 			log.Println("Failed to check the numbers of players:", err)
 			return
 		}
 
 		logged, err := userOperator.IsAdminLoggedIn()
 		if err != nil {
-			sendErrorMessage(conn, "internal_error", "Failed to check the admin on redis")
+			sendMessage(conn, "error", "Failed to check the admin on redis")
 			log.Println("Failed to check the admin on redis:", err)
 			return
 		}
 
 		if !logged {
-			sendErrorMessage(conn, "admin_not_logged", "Admin is not logged yet")
+			sendMessage(conn, "admin_not_logged", "Admin is not logged yet")
 			log.Println("Admin is not logged in yet")
 			return
 		}
 
 		if exceeded {
-			sendErrorMessage(conn, "players_exceeded", "Players Limit Exceeded")
+			sendMessage(conn, "players_exceeded", "Players Limit Exceeded")
 			log.Println("Players Limit Exceeded")
 			return
 		}
 
-		player := models.NewPlayer(userOperator.CountPlayers() + 1, "Name")
+		player := models.NewPlayer(userOperator.CountPlayers() + 1, "Anton Fedorov")
 
 		if err := userOperator.AddPlayer(player); err != nil {
+			sendMessage(conn, "error", "Failed to add player")
 			log.Printf("Failed to add a player: %v", err)
 			return
 		}

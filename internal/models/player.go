@@ -1,7 +1,9 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"log/slog"
 
 	"github.com/gorilla/websocket"
@@ -42,10 +44,34 @@ var (
 func (p *Player) Run(connection *websocket.Conn) error {
 	defer connection.Close()
 
-
-
 	for {
+		t, message, err := connection.ReadMessage()
+		if err != nil {
+			return err
+		}
 		
+		if t != websocket.TextMessage {
+			log.Printf("Unsupported message type: %v", t)
+			continue
+		}
+
+		var input struct {
+			Action string `json:"action"`
+			Data   string `json:"data"`
+		}
+
+		if err := json.Unmarshal(message, &input); err != nil {
+			log.Printf("Failed to parse message: %v", err)
+			return err
+		}
+
+		switch input.Action {
+		case "":
+			
+		}
+
+
+
+
 	}
-	return nil
 }
