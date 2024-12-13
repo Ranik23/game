@@ -77,6 +77,8 @@ func (a *Admin) Run(connection *websocket.Conn) error {
 				return a.rejectPlayer(connection, id)
 			case "start_game":
 				return a.startGame(connection)
+			default:
+				log.Printf("Unknown action: %v", action)
 			}
 		}
 	}
