@@ -3,12 +3,13 @@ package postgres
 import (
 	"errors"
 	"game/internal/models"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 type Storage interface {
-	InsertLoginInfo(data interface{}) error
+	Insert(data interface{}) error
 	CheckLoginExists(login string) (bool, error)
 	GetHash(login string) ([]byte, error)
 	//		Get(key string) (interface{}, error)
@@ -30,7 +31,7 @@ func NewPostgresClient(host, port, user, password, dbname string) (*PostgresClie
 	return &PostgresClient{db: db}, nil
 }
 
-func (s *PostgresClient) InsertLoginInfo(data interface{}) error {
+func (s *PostgresClient) Insert(data interface{}) error {
 	if err := s.db.Create(data).Error; err != nil {
 		return err
 	}

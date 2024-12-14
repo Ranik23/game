@@ -1,18 +1,19 @@
 CREATE TABLE pf {
-    ID                  INT PRIMARY KEY, 
-    date_fixation       DATE, 
-    pp_id               INT NOT NULL, 
-    status_id           INT NOT NULL,
-    range_results_id
-    FOREIGN KEY(status_id) REFERENCES status(ID),
-    FOREIGN KEY(pp_id) REFERENCES project_suggestion(ID),
-    duration_fact_realization VARCHAR(255),
-    fact_realization_param_id INT NOT NULL,
+    ID                          INT PRIMARY KEY, 
+    date_fixation               DATE, 
+    pp_id                       INT NOT NULL, 
+    status_id                   INT NOT NULL,
+    range_results_id            INT NOT NULL,
+    duration_fact_realization   VARCHAR(255),
+    fact_realization_param_id   INT NOT NULL,
     param_po_otchetam_realiz_id INT NOT NULL,
     cost_on_realization_id      INT NOT NULL,
-    FOREIGN KEY(fact_realization_param_id) REFERENCES fact_realization_param(ID),
-    FOREIGN KEY(param_po_otchetam_realiz_id) REFERENCES param_po_otchetam_realiz(ID),
-    FOREIGN KEY(cost_on_realization_id) REFERENCES cost_on_realization(ID),
+    FOREIGN KEY(fact_realization_param_id)      REFERENCES fact_realization_param(ID),
+    FOREIGN KEY(param_po_otchetam_realiz_id)    REFERENCES param_po_otchetam_realiz(ID),
+    FOREIGN KEY(cost_on_realization_id)         REFERENCES cost_on_realization(ID),
+    FOREIGN KEY(status_id)                      REFERENCES status(ID),
+    FOREIGN KEY(pp_id)                          REFERENCES project_suggestion(ID),
+    FOREIGN KEY(range_results_id)               REFERENCES range_results(ID)
 };
 
 

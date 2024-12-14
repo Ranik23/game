@@ -27,15 +27,15 @@ const (
 )
 
 type UseCase interface {
-	AddPlayer(*models.Player) 						error
-	AddAdmin(*models.Admin) 						error
-	CountPlayers() 									int
-	IsAdminLoggedIn() 								(bool, error)
-	PlayersNumberExceeded() 						(bool, error)
-	RemovePlayer(playerID int) 						error
-	GetPlayers() 									([]*models.Player, error)
-	AddLoginInfo(login, password string) 			error
-	CheckLoginInfo(login string, password string) 	error
+	AddPlayer(*models.Player) error
+	AddAdmin(*models.Admin) error
+	CountPlayers() int
+	IsAdminLoggedIn() (bool, error)
+	PlayersNumberExceeded() (bool, error)
+	RemovePlayer(playerID int) error
+	GetPlayers() ([]*models.Player, error)
+	AddLoginInfo(login, password string) error
+	CheckLoginInfo(login string, password string) error
 }
 
 type useCaseImpl struct {
@@ -175,7 +175,7 @@ func (uc *useCaseImpl) AddLoginInfo(login, password string) error {
 		Hash:  hash,
 	}
 
-	if err := uc.postgresClient.InsertLoginInfo(loginInfo); err != nil {
+	if err := uc.postgresClient.Insert(loginInfo); err != nil {
 		uc.logger.Error("Failed to insert login info", "error", err)
 		return err
 	}
