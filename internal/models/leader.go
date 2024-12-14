@@ -24,7 +24,6 @@ func NewLeader(userName string, team *Team) *Leader {
 	}
 }
 
-
 func (l *Leader) Run(connection *websocket.Conn) error {
 	defer connection.Close()
 	for {
@@ -34,7 +33,6 @@ func (l *Leader) Run(connection *websocket.Conn) error {
 		}
 	}
 }
-
 
 func (l *Leader) acceptPlayerIntoTeam(connection *websocket.Conn, id int) error {
 	player, ok := <- l.playersCh
