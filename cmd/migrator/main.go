@@ -54,4 +54,5 @@ func main() {
 			log.Println("migrations down successfully")
 		}
 	}
+	
 }
