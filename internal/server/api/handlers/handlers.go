@@ -85,25 +85,25 @@ func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 	}
 }
 
-func LeaderPanelHanlder(userOperator usecase.UseCase) gin.HandlerFunc {
+func LeaderPanelHanlder() gin.HandlerFunc {
 	return func(g *gin.Context) { 
 		g.HTML(http.StatusOK, "leader-panel.html", gin.H{})
 	}
 }
 
-func PlayerPanelHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+func PlayerPanelHandler() gin.HandlerFunc {
 	return func(g *gin.Context) {
 		g.HTML(http.StatusOK, "player-panel.html", gin.H{})
 	}
 }
 
-func AdminPanelHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+func AdminPanelHandler() gin.HandlerFunc {
 	return func(g *gin.Context) {
 		g.HTML(http.StatusOK, "admin-panel.html", gin.H{})
 	}
 }
 
-func LogoutHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+func LogoutHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 		session.Clear()

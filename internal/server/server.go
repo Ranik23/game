@@ -66,6 +66,7 @@ func (s *Server) setUpRoutes() {
 
 	s.router.GET("/ws/admin", handlers.AdminWebSocketHandler(s.UserOperator))
 	s.router.GET("/ws/player", handlers.ClientWebSocketHandler(s.UserOperator))
+	s.router.GET("/ws/leader", handlers.LeaderWebSocketHanlder(s.UserOperator))
 
 	protected := s.router.Group("/role")
 	protected.Use(
@@ -73,10 +74,10 @@ func (s *Server) setUpRoutes() {
 		middlewares.EnsureRoleSelectionVisited(),
 		middlewares.EnsureLoginVisited())
 	{
-		protected.GET("/player-panel", handlers.PlayerPanelHandler(s.UserOperator))
-		protected.GET("/leader-panel", handlers.PlayerPanelHandler(s.UserOperator))
-		protected.GET("/logout", handlers.LogoutHandler(s.UserOperator))
-		protected.GET("/admin-panel", handlers.AdminPanelHandler(s.UserOperator))
+		protected.GET("/player-panel", handlers.PlayerPanelHandler())
+		protected.GET("/leader-panel", handlers.LeaderPanelHanlder())
+		protected.GET("/logout", handlers.LogoutHandler())
+		protected.GET("/admin-panel", handlers.AdminPanelHandler())
 	}
 }
 

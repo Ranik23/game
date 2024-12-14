@@ -43,6 +43,7 @@ type UseCase interface {
 	AddLoginInfo(login, password string) error
 	CheckLoginInfo(login string, password string) error
 	CreateTeam() (*models.Team, error)
+	CountTeams() (int, error)
 }
 
 type useCaseImpl struct {
@@ -246,6 +247,21 @@ func (uc *useCaseImpl) CreateTeam() (*models.Team, error) {
 
 
 func (uc *useCaseImpl) GetTeams() ([]models.Team, error) {
-	// TODO
-	return nil, nil
+	uc.mutex.Lock()
+	defer uc.mutex.Unlock()
+
+	var teams []models.Team
+
+	for _, team := range uc.Admin.Teams {
+		teams = append(teams, *team)
+	}
+
+	return teams, nil
+}
+
+
+func (uc *useCaseImpl) CountTeams() (int, error) {
+	uc.mutex.Lock()
+	defer uc.mutex.Unlock()
+	return len(uc.Admin.Teams), nil
 }
