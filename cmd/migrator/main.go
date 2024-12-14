@@ -29,7 +29,7 @@ func main() {
 		"@" + cfg.Postgres.Host + ":" + cfg.Postgres.Port +
 		"/" + cfg.Postgres.DbName + "?sslmode=disable"
 
-	m, err := migrate.New("file://"+os.Getenv("HOME")+"/game/internal/storage/postgres/migrations/", dsn)
+	m, err := migrate.New("file://"+os.Getenv("HOME")+"/game/internal/storage/postgres/migrations/tables", dsn)
 	if err != nil {
 		log.Fatalf("failed to load the path to migrations: %v", err)
 	}

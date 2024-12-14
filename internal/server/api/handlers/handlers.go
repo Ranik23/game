@@ -40,10 +40,22 @@ func LoginHandlerGET(userOperator usecase.UseCase) gin.HandlerFunc {
 
 func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		username := c.PostForm("username")
-		password := c.PostForm("password")
 
-		if username == "admin" && password == "123" {
+		var loginData struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}
+		if err := c.ShouldBindJSON(&loginData); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "invalid_request",
+			})
+			return
+		}
+
+		username := loginData.Username
+		password := loginData.Password
+
+		if err := userOperator.CheckLoginInfo(username, password); err != nil {
 			session := sessions.Default(c)
 			session.Set("login_visited", true)
 			session.Save()

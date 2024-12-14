@@ -30,34 +30,40 @@
   </div>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(event) {
-      event.preventDefault();
+    document.getElementById('loginForm').addEventListener('submit', async function (event) {
+    event.preventDefault(); 
 
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-      fetch('/role/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          username: username,
-          password: password,
-        }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          document.getElementById('error-message').textContent = 'Неверный логин или пароль';
-        } else {
-          window.location.href = data.redirect;
+    try {
+        const response = await fetch('/role/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', 
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.statusText}`);
         }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-    });
+
+        const data = await response.json();
+
+        if (data.error) {
+            document.getElementById('error-message').textContent = 'Неверный логин или пароль';
+        } else {
+            window.location.href = data.redirect;
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        document.getElementById('error-message').textContent = 'Произошла ошибка при входе. Попробуйте позже.';
+    }
+});
   </script>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
