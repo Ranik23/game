@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"errors"
+	//"errors"
 	"game/internal/models"
 
 	"gorm.io/driver/postgres"
@@ -40,25 +40,26 @@ func (s *PostgresClient) Insert(data interface{}) error {
 
 func (s *PostgresClient) CheckLoginExists(login string) (bool, error) {
 
-	var login_info models.LoginInfo
+	// var login_info models.LoginInfo
 
-	if err := s.db.Where("login = ?", login).First(&login_info).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, err
-		}
-		return false, err
-	}
+	// if err := s.db.Where("login = ?", login).First(&login_info).Error; err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		return false, err
+	// 	}
+	// 	return false, err
+	// }
 
 	return true, nil
 }
 
 func (s *PostgresClient) GetHash(login string) ([]byte, error) {
 	var login_info models.LoginInfo
-	if err := s.db.Where("login = ?", login).First(&login_info).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, gorm.ErrRecordNotFound
-		}
-		return nil, err
-	}
+	// if err := s.db.Where("login = ?", login).First(&login_info).Error; err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		return nil, gorm.ErrRecordNotFound
+	// 	}
+	// 	return nil, err
+	// }
 	return login_info.Hash, nil
 }
+

@@ -1,3 +1,7 @@
+// TODO: НУЖНО ОКОНЧАТЕЛЬНО РЕШИТЬ ГДЕ МЫ ХРАНИМ ДАННЫЕ ОБ ИГРОКАХ И ТАК ДАЛЕЕ. ЛИБО В СТРУКТУРЕ КАК СЛАЙС. ЛИБО БЕРЕМ ИЗ БД
+// ИНАЧЕ ЭТОТ СЛОЙ ПОЧТИ НИКАК НЕ ВЗАИМОДЕЙСТВУЕТ С БД СЛОЕМ.
+
+
 package usecase
 
 import (
@@ -28,13 +32,14 @@ const (
 )
 
 type UseCase interface {
-	AddPlayer(*models.Player) error
+	AddPlayer(*models.Team, *models.Player) error
 	AddAdmin(*models.Admin) error
 	CountPlayers() (int, error)
 	IsAdminLoggedIn() (bool, error)
 	PlayersNumberExceeded() (bool, error)
 	RemovePlayer(playerID int) error
 	GetPlayers() ([]models.Player, error)
+	GetTeams()   ([]models.Team, error)
 	AddLoginInfo(login, password string) error
 	CheckLoginInfo(login string, password string) error
 	CreateTeam() (*models.Team, error)
@@ -132,6 +137,7 @@ func (uc *useCaseImpl) PlayersNumberExceeded() (bool, error) {
 	return count > maxPlayers, nil
 }
 
+// TODO: сюда надо и команду добавить в аргументы
 func (uc *useCaseImpl) RemovePlayer(playerID int) error {
 	uc.mutex.Lock()
 	defer uc.mutex.Unlock()
@@ -222,16 +228,24 @@ func (uc *useCaseImpl) CheckLoginInfo(login, password string) error {
 		return ErrLoginNotFound
 	}
 
-	hash, err := uc.postgresClient.GetHash(login)
+	_, err = uc.postgresClient.GetHash(login)
 	if err != nil {
 		uc.logger.Error("Failed to get hash", "error", err)
 		return err
 	}
 
-	return bcrypt.CompareHashAndPassword(hash, []byte(password))
+	return nil //bcrypt.CompareHashAndPassword(hash, []byte(password))
 	// TODO: я сделал пока что так, потому что у нас не созданы таблицы до конца
+	// И ВОЗМОЖНО НУЖНО СПУСТИТЬ ЭТУ ФУНКЦИЮ ВНИЗ И ПОСТАВИТЬ ЗАГЛУШКУ НА ВСЕГДА NIL, ЧТОБЫ НЕ УРОДОВАТЬ USECASE
 }
 
 func (uc *useCaseImpl) CreateTeam() (*models.Team, error) {
+	// TODO
+	return nil, nil
+}
+
+
+func (uc *useCaseImpl) GetTeams() ([]models.Team, error) {
+	// TODO
 	return nil, nil
 }

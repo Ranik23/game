@@ -25,7 +25,6 @@ function createWebSocket() {
             } else {
                 alert("Ошибка")
                 window.location.href = "/role"
-               // socket.onerror(new Error(data.message))
             }
         } else if (data.Action === "message") {
             console.log("Сообщение: ", data.Message)

@@ -9,29 +9,30 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	router  *gin.Engine
-	config  *config.Config
-	logger  *slog.Logger
+	router       *gin.Engine
+	config       *config.Config
+	logger       *slog.Logger
 	UserOperator usecase.UseCase
 }
 
 func NewServer(config *config.Config, logger *slog.Logger, router *gin.Engine, usecase usecase.UseCase) *Server {
 	server := &Server{
-		router:  router,
-		config:  config,
-		logger:  logger,
+		router:       router,
+		config:       config,
+		logger:       logger,
 		UserOperator: usecase,
 	}
 
 	store := cookie.NewStore([]byte("secret"))
 	router.Use(sessions.Sessions("mysession", store))
-	
+
 	server.setUpRoutes()
 	server.setUpHTMLFiles(os.Getenv("HOME") + "/game/internal/static/*.html")
 	server.setUpStaticFiles()
@@ -57,19 +58,14 @@ func (s *Server) setUpRoutes() {
 	s.router.GET("/role", middlewares.EnsureHomeVisited(), handlers.RoleHandler(s.UserOperator))
 
 	s.router.GET("/role/login",
-				middlewares.EnsureHomeVisited(),
-				middlewares.EnsureRoleSelectionVisited(),
-				handlers.LoginHandlerGET(s.UserOperator))
-				
+		middlewares.EnsureHomeVisited(),
+		middlewares.EnsureRoleSelectionVisited(),
+		handlers.LoginHandlerGET(s.UserOperator))
+
 	s.router.POST("/role/login", handlers.LoginHandlerPOST(s.UserOperator))
 
 	s.router.GET("/ws/admin", handlers.AdminWebSocketHandler(s.UserOperator))
 	s.router.GET("/ws/player", handlers.ClientWebSocketHandler(s.UserOperator))
-
-	s.router.GET("/role/player-panel",
-				middlewares.EnsureHomeVisited(),
-				middlewares.EnsureRoleSelectionVisited(),
-				handlers.MainHandler(s.UserOperator))
 
 	protected := s.router.Group("/role")
 	protected.Use(
@@ -77,8 +73,10 @@ func (s *Server) setUpRoutes() {
 		middlewares.EnsureRoleSelectionVisited(),
 		middlewares.EnsureLoginVisited())
 	{
+		protected.GET("/player-panel", handlers.PlayerPanelHandler(s.UserOperator))
+		protected.GET("/leader-panel", handlers.PlayerPanelHandler(s.UserOperator))
 		protected.GET("/logout", handlers.LogoutHandler(s.UserOperator))
-		protected.GET("/admin-panel", handlers.AdminMainHandler(s.UserOperator))
+		protected.GET("/admin-panel", handlers.AdminPanelHandler(s.UserOperator))
 	}
 }
 
