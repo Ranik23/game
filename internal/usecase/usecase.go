@@ -19,6 +19,7 @@ var (
 	ErrNoAdminSet         = errors.New("no admin is set")
 	ErrPlayerNotFound     = errors.New("player not found")
 	ErrLoginNotFound      = errors.New("login not found")
+	ErrAdminIsAlreadySet  = errors.New("admin is set already")
 )
 
 const (
@@ -29,7 +30,7 @@ const (
 type UseCase interface {
 	AddPlayer(*models.Player) 						error
 	AddAdmin(*models.Admin) 						error
-	CountPlayers() 									int
+	CountPlayers() 									(int, error)
 	IsAdminLoggedIn() 								(bool, error)
 	PlayersNumberExceeded() 						(bool, error)
 	RemovePlayer(playerID int) 						error
@@ -58,14 +59,14 @@ func NewUseCase(
 	}
 }
 
-func (uc *useCaseImpl) CountPlayers() int {
+func (uc *useCaseImpl) CountPlayers() (int, error) {
 	uc.mutex.Lock()
 	defer uc.mutex.Unlock()
 
 	if uc.Admin == nil {
-		return 0
+		return 0, ErrNoAdminSet
 	}
-	return len(uc.Admin.Players)
+	return len(uc.Admin.Players), nil
 }
 
 func (uc *useCaseImpl) AddPlayer(player *models.Player) error {
@@ -85,6 +86,11 @@ func (uc *useCaseImpl) AddPlayer(player *models.Player) error {
 func (uc *useCaseImpl) AddAdmin(admin *models.Admin) error {
 	uc.mutex.Lock()
 	defer uc.mutex.Unlock()
+
+
+	if uc.Admin != nil {
+		return ErrAdminIsAlreadySet
+	}
 
 	uc.Admin = admin
 	uc.logger.Info("Admin added successfully", "admin", admin.Name)
@@ -185,28 +191,26 @@ func (uc *useCaseImpl) AddLoginInfo(login, password string) error {
 }
 
 func (uc *useCaseImpl) CheckLoginInfo(login, password string) error {
-	// uc.mutex.Lock()
-	// defer uc.mutex.Unlock()
+	uc.mutex.Lock()
+	defer uc.mutex.Unlock()
 
-	// exists, err := uc.postgresClient.CheckLoginExists(login)
-	// if err != nil {
-	// 	uc.logger.Error("Failed to check login existence", "error", err)
-	// 	return err
-	// }
+	exists, err := uc.postgresClient.CheckLoginExists(login)
+	if err != nil {
+		uc.logger.Error("Failed to check login existence", "error", err)
+		return err
+	}
 
-	// if !exists {
-	// 	uc.logger.Warn("Login does not exists", "login", login)
-	// 	return ErrLoginNotFound
-	// }
+	if !exists {
+		uc.logger.Warn("Login does not exists", "login", login)
+		return ErrLoginNotFound
+	}
 
-	// hash, err := uc.postgresClient.GetHash(login)
-	// if err != nil {
-	// 	uc.logger.Error("Failed to get hash", "error", err)
-	// 	return err
-	// }
+	hash, err := uc.postgresClient.GetHash(login)
+	if err != nil {
+		uc.logger.Error("Failed to get hash", "error", err)
+		return err
+	}
 
-	// return bcrypt.CompareHashAndPassword(hash, []byte(password))
-	return nil
-
+	return bcrypt.CompareHashAndPassword(hash, []byte(password))
 	// TODO: я сделал пока что так, потому что у нас не созданы таблицы до конца
 }

@@ -48,7 +48,14 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		player := models.NewPlayer(userOperator.CountPlayers() + 1, "Anton Fedorov")
+		count, err := userOperator.CountPlayers()
+		if err != nil {
+			sendMessage(conn, "error", "Failed to count the players")
+			log.Printf("Failed to count the players: %v", err)
+			return
+		}
+
+		player := models.NewPlayer(count + 1, "Anton Fedorov")
 
 		if err := userOperator.AddPlayer(player); err != nil {
 			sendMessage(conn, "error", "Failed to add a player")
