@@ -23,7 +23,9 @@ function createWebSocket() {
                 alert("Избыток игроков")
                 window.location.href = "/role"
             } else {
-                socket.onerror(new Error(data.message))
+                alert("Ошибка")
+                window.location.href = "/role"
+               // socket.onerror(new Error(data.message))
             }
         } else if (data.Action === "message") {
             console.log("Сообщение: ", data.Message)

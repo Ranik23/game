@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"errors"
 	"game/internal/models"
 	"game/internal/usecase"
 	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,8 +19,13 @@ func ClientWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 
 		exceeded, err := userOperator.PlayersNumberExceeded()
 		if err != nil {
-			sendMessage(conn, "error", "Failed to check the numbers of players")
-			log.Printf("Failed to check the numbers of players: %v", err)
+			if errors.Is(err, usecase.ErrNoAdminSet) {
+				sendMessage(conn, "error", "Admin is not logged in yet")
+				log.Println("Admin is not logged in yet")
+			} else {
+				sendMessage(conn, "error", "Failed to check the numbers of players")
+				log.Printf("Failed to check the numbers of players: %v", err)
+			}
 			return
 		}
 
