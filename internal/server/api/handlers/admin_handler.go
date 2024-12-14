@@ -17,18 +17,18 @@ func AdminWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		logged, err := userOperator.IsAdminLoggedIn()
-		if err != nil {
-			log.Println("Failed to check the admin:", err)
-			sendMessage(conn, "error", "Failed to check the admin")
-			return
-		}
+		// logged, err := userOperator.IsAdminLoggedIn()
+		// if err != nil {
+		// 	log.Println("Failed to check the admin:", err)
+		// 	sendMessage(conn, "error", "Failed to check the admin")
+		// 	return
+		// }
 
-		if logged {
-			log.Println("Admin is already logged in. Redirecting...")
-			sendMessage(conn, "redirect", "/role")
-			return
-		}
+		// if logged {
+		// 	log.Println("Admin is already logged in. Redirecting...")
+		// 	sendMessage(conn, "redirect", "/role")
+		// 	return
+		// }
 
 		admin := models.NewAdmin("Anton Fedorov")
 

@@ -3,7 +3,9 @@ package main
 import (
 	"game/internal/config"
 	"game/internal/server"
+
 	//"game/internal/storage/postgres"
+	"game/internal/storage/postgres"
 	"game/internal/storage/redis"
 	"game/internal/usecase"
 	"log"
@@ -27,11 +29,11 @@ func main() {
 					cfg.Redis.Password,
 					cfg.Redis.DB)
 
-	// postgresClient, err := postgres.NewPostgresClient(cfg.Postgres.Host, 
-	// 					cfg.Postgres.Port,
-	// 					cfg.Postgres.User,
-	// 					cfg.Postgres.Password,
-	// 					cfg.Postgres.DbName)
+	postgresClient, err := postgres.NewPostgresClient(cfg.Postgres.Host, 
+						cfg.Postgres.Port,
+						cfg.Postgres.User,
+						cfg.Postgres.Password,
+						cfg.Postgres.DbName)
 	if err != nil {
 		log.Fatalf("failed to create a postgres client :%v", err)
 	}
@@ -43,7 +45,7 @@ func main() {
 
 	Logger := slog.Default()
 
-	userOperator := usecase.NewUseCase(nil, redisClient, Logger)
+	userOperator := usecase.NewUseCase(postgresClient, redisClient, Logger)
 
 	server := server.NewServer(cfg, Logger, Router, userOperator)
 								

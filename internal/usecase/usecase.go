@@ -185,25 +185,28 @@ func (uc *useCaseImpl) AddLoginInfo(login, password string) error {
 }
 
 func (uc *useCaseImpl) CheckLoginInfo(login, password string) error {
-	uc.mutex.Lock()
-	defer uc.mutex.Unlock()
+	// uc.mutex.Lock()
+	// defer uc.mutex.Unlock()
 
-	exists, err := uc.postgresClient.CheckLoginExists(login)
-	if err != nil {
-		uc.logger.Error("Failed to check login existence", "error", err)
-		return err
-	}
+	// exists, err := uc.postgresClient.CheckLoginExists(login)
+	// if err != nil {
+	// 	uc.logger.Error("Failed to check login existence", "error", err)
+	// 	return err
+	// }
 
-	if !exists {
-		uc.logger.Warn("Login does not exists", "login", login)
-		return ErrLoginNotFound
-	}
+	// if !exists {
+	// 	uc.logger.Warn("Login does not exists", "login", login)
+	// 	return ErrLoginNotFound
+	// }
 
-	hash, err := uc.postgresClient.GetHash(login)
-	if err != nil {
-		uc.logger.Error("Failed to get hash", "error", err)
-		return err
-	}
+	// hash, err := uc.postgresClient.GetHash(login)
+	// if err != nil {
+	// 	uc.logger.Error("Failed to get hash", "error", err)
+	// 	return err
+	// }
 
-	return bcrypt.CompareHashAndPassword(hash, []byte(password))
+	// return bcrypt.CompareHashAndPassword(hash, []byte(password))
+	return nil
+
+	// TODO: я сделал пока что так, потому что у нас не созданы таблицы до конца
 }

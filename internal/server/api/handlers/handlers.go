@@ -56,6 +56,11 @@ func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 		password := loginData.Password
 
 		if err := userOperator.CheckLoginInfo(username, password); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "invalid_credentials",
+			})
+		} else {
+
 			session := sessions.Default(c)
 			session.Set("login_visited", true)
 			session.Save()
@@ -63,10 +68,6 @@ func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 			c.JSON(http.StatusOK, gin.H{
 				"message":  "login success",
 				"redirect": "/role/admin-panel",
-			})
-		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid_credentials",
 			})
 		}
 	}

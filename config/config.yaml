@@ -7,8 +7,8 @@ redis:
 postgres:
   host: "localhost"
   port: "5432"
-  user: "postgres"
-  password: "postgres"
+  user: "super_user"
+  password: "anton"
   db_name: "game"
 
 localhost:
