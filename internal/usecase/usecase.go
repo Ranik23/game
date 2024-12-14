@@ -181,7 +181,7 @@ func (uc *useCaseImpl) AddLoginInfo(login, password string) error {
 		Hash:  hash,
 	}
 
-	if err := uc.postgresClient.InsertLoginInfo(loginInfo); err != nil {
+	if err := uc.postgresClient.Insert(loginInfo); err != nil {
 		uc.logger.Error("Failed to insert login info", "error", err)
 		return err
 	}
