@@ -28,15 +28,16 @@ const (
 )
 
 type UseCase interface {
-	AddPlayer(*models.Player) 						error
-	AddAdmin(*models.Admin) 						error
-	CountPlayers() 									(int, error)
-	IsAdminLoggedIn() 								(bool, error)
-	PlayersNumberExceeded() 						(bool, error)
-	RemovePlayer(playerID int) 						error
-	GetPlayers() 									([]*models.Player, error)
-	AddLoginInfo(login, password string) 			error
-	CheckLoginInfo(login string, password string) 	error
+	AddPlayer(*models.Player) error
+	AddAdmin(*models.Admin) error
+	CountPlayers() (int, error)
+	IsAdminLoggedIn() (bool, error)
+	PlayersNumberExceeded() (bool, error)
+	RemovePlayer(playerID int) error
+	GetPlayers() ([]models.Player, error)
+	AddLoginInfo(login, password string) error
+	CheckLoginInfo(login string, password string) error
+	CreateTeam() (*models.Team, error)
 }
 
 type useCaseImpl struct {
@@ -62,14 +63,15 @@ func NewUseCase(
 func (uc *useCaseImpl) CountPlayers() (int, error) {
 	uc.mutex.Lock()
 	defer uc.mutex.Unlock()
-
-	if uc.Admin == nil {
-		return 0, ErrNoAdminSet
+	players, err := uc.GetPlayers()
+	if err != nil {
+		uc.logger.Error("")
+		return 0, err
 	}
-	return len(uc.Admin.Players), nil
+	return len(players), nil
 }
 
-func (uc *useCaseImpl) AddPlayer(player *models.Player) error {
+func (uc *useCaseImpl) AddPlayer(team *models.Team, player *models.Player) error {
 	uc.mutex.Lock()
 	defer uc.mutex.Unlock()
 
@@ -78,7 +80,7 @@ func (uc *useCaseImpl) AddPlayer(player *models.Player) error {
 		return ErrNoAdminSet
 	}
 
-	uc.Admin.Players = append(uc.Admin.Players, player)
+	team.Players = append(team.Players, player)
 	uc.logger.Info("Player added successfully", "player", player.UserName)
 	return nil
 }
@@ -87,13 +89,12 @@ func (uc *useCaseImpl) AddAdmin(admin *models.Admin) error {
 	uc.mutex.Lock()
 	defer uc.mutex.Unlock()
 
-
 	if uc.Admin != nil {
 		return ErrAdminIsAlreadySet
 	}
 
 	uc.Admin = admin
-	uc.logger.Info("Admin added successfully", "admin", admin.Name)
+	uc.logger.Info("Admin added successfully", "admin", admin.UserName)
 
 	return uc.redisClient.Set(context.Background(), RedisKeyAdminLogged, "true")
 }
@@ -122,7 +123,13 @@ func (uc *useCaseImpl) PlayersNumberExceeded() (bool, error) {
 
 	maxPlayers := 9
 
-	return len(uc.Admin.Players) > maxPlayers, nil
+	count := 0
+
+	for _, team := range uc.Admin.Teams {
+		count += len(team.Players)
+	}
+
+	return count > maxPlayers, nil
 }
 
 func (uc *useCaseImpl) RemovePlayer(playerID int) error {
@@ -133,18 +140,20 @@ func (uc *useCaseImpl) RemovePlayer(playerID int) error {
 		return ErrNoAdminSet
 	}
 
-	for i, player := range uc.Admin.Players {
-		if player.ID == playerID {
-			uc.Admin.Players = append(uc.Admin.Players[:i], uc.Admin.Players[i+1:]...)
-			uc.logger.Info("Player removed successfully", "playerID", playerID)
-			return nil
+	for i, team := range uc.Admin.Teams {
+		for _, player := range team.Players {
+			if player.ID == playerID {
+				uc.Admin.Teams[i].Players = append(uc.Admin.Teams[i].Players[:i], uc.Admin.Teams[i].Players[i+1:]...)
+				uc.logger.Info("Player removed successfully", "playerID", playerID)
+				return nil
+		}
 		}
 	}
 
 	return ErrPlayerNotFound
 }
 
-func (uc *useCaseImpl) GetPlayers() ([]*models.Player, error) {
+func (uc *useCaseImpl) GetPlayers() ([]models.Player, error) {
 	uc.mutex.Lock()
 	defer uc.mutex.Unlock()
 
@@ -152,7 +161,15 @@ func (uc *useCaseImpl) GetPlayers() ([]*models.Player, error) {
 		return nil, ErrNoAdminSet
 	}
 
-	return uc.Admin.Players, nil
+	var total []models.Player
+
+	for _, team := range uc.Admin.Teams {
+		for _, player := range team.Players {
+			total = append(total, *player)
+		}
+	}
+
+	return total, nil
 }
 
 func (uc *useCaseImpl) AddLoginInfo(login, password string) error {
@@ -213,4 +230,8 @@ func (uc *useCaseImpl) CheckLoginInfo(login, password string) error {
 
 	return bcrypt.CompareHashAndPassword(hash, []byte(password))
 	// TODO: я сделал пока что так, потому что у нас не созданы таблицы до конца
+}
+
+func (uc *useCaseImpl) CreateTeam() (*models.Team, error) {
+	return nil, nil
 }

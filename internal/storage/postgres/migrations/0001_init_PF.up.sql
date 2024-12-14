@@ -1,4 +1,4 @@
-CREATE TABLE pf {
+CREATE TABLE pf (
     ID                          INT PRIMARY KEY, 
     date_fixation               DATE, 
     pp_id                       INT NOT NULL, 
@@ -14,47 +14,41 @@ CREATE TABLE pf {
     FOREIGN KEY(status_id)                      REFERENCES status(ID),
     FOREIGN KEY(pp_id)                          REFERENCES project_suggestion(ID),
     FOREIGN KEY(range_results_id)               REFERENCES range_results(ID)
-};
+);
 
-
-
-CREATE TABLE status {
+CREATE TABLE status (
     ID                      INT PRIMARY KEY,
     pp_review_status        VARCHAR(255),
     pp_realization_status   VARCHAR(255),
-    pp_usage_result         VARCHAR(255),
-}
+    pp_usage_result         VARCHAR(255)
+);
 
-CREATE TABLE range_results {
+CREATE TABLE range_results (
     ID          INT PRIMARY KEY,
     alghoritm_1 VARCHAR(255),
-    alghoritm_2 VARCHAR(255),
-}
+    alghoritm_2 VARCHAR(255)
+);
 
-CREATE TABLE fact_realization_param {
+CREATE TABLE fact_realization_param (
     ID                      INT PRIMARY KEY,
     narast_itog             VARCHAR(255),
     otklon_nakopl_znach_BL  VARCHAR(255),
     prognoz_do_zaversh      VARCHAR(255),
-    prognoz_po_zaversh      VARCHAR(255),
-}
+    prognoz_po_zaversh      VARCHAR(255)
+);
 
-CREATE TABLE param_po_otchetam_realiz {
+CREATE TABLE param_po_otchetam_realiz (
     ID                      INT PRIMARY KEY,
     narast_itog             VARCHAR(255),
     otklon_nakopl_znach_BL  VARCHAR(255),
     prognoz_do_zaversh      VARCHAR(255),
-    prognoz_po_zaversh      VARCHAR(255),
-}
+    prognoz_po_zaversh      VARCHAR(255)
+);
 
-
-CREATE TABLE cost_on_realization {
+CREATE TABLE cost_on_realization (
     ID                      INT PRIMARY KEY,
     narast_itog             VARCHAR(255),
     otklon_nakopl_znach_BL  VARCHAR(255),
     prognoz_do_zaversh      VARCHAR(255),
-    prognoz_po_zaversh      VARCHAR(255),
-}
-
-
-
+    prognoz_po_zaversh      VARCHAR(255)
+);

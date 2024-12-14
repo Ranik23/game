@@ -30,6 +30,12 @@ func AdminWebSocketHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 			return
 		}
 
+		// team, err := userOperator.CreateTeam()
+		// if err != nil {
+		// 	log.Println("Failed to create team:", err)
+		// 	sendMessage(conn, "error", "Failed to create team")
+		// 	return
+		// }
 		admin := models.NewAdmin("Anton Fedorov")
 
 		if err := userOperator.AddAdmin(admin); err != nil {
