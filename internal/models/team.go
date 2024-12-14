@@ -13,3 +13,7 @@ func NewTeam(Leader *Player) *Team {
 		Leader: Leader,
 	}
 }
+
+func (t *Team) AddPlayer(player *Player) {
+	t.Players = append(t.Players, player)
+}

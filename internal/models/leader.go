@@ -1,6 +1,10 @@
 package models
 
-import "github.com/gorilla/websocket"
+import (
+	"errors"
+
+	"github.com/gorilla/websocket"
+)
 
 type Leader struct {
 	UserName 	string
@@ -33,6 +37,11 @@ func (l *Leader) Run(connection *websocket.Conn) error {
 
 
 func (l *Leader) acceptPlayerIntoTeam(connection *websocket.Conn, id int) error {
+	player, ok := <- l.playersCh
+	if !ok {
+		return errors.New("no players in the channel")
+	}
+	l.Team.AddPlayer(player)
 	return nil
 }
 
