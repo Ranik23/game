@@ -266,6 +266,11 @@ func (uc *useCaseImpl) GetTeams() ([]models.Team, error) {
 
 	var teams []models.Team
 
+	if uc.Admin == nil {
+		uc.logger.Error("Admin not set")
+		return nil, ErrNoAdminSet
+	}
+
 	for _, team := range uc.Admin.Teams {
 		teams = append(teams, *team)
 	}

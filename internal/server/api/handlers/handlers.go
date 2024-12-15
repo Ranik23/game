@@ -84,17 +84,28 @@ func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 	}
 }
 
+
+
+
+
 func LoginLeaderHandlerGET(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		g.HTML(http.StatusOK, "login-leader.html", gin.H{})
 	}
 }
 
+func LoginPlayerHandlerGET(userOperator usecase.UseCase) gin.HandlerFunc {
+	return func(g *gin.Context) {
+		g.HTML(http.StatusOK, "login-player.html", gin.H{})
+	}
+}
+
+
 func CreateTeamHandler(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var loginData struct {
-			Username string
-			TeamName string
+			Username string 	`json:"username"`
+			TeamName string		`json:"teamName"`
 		}
 
 		if err := c.ShouldBindJSON(&loginData); err != nil {
@@ -152,5 +163,19 @@ func LogoutHandler() gin.HandlerFunc {
 		session.Clear()
 		session.Save()
 		c.Redirect(http.StatusFound, "/role/login")
+	}
+}
+
+func GetTeamsHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		teams, err := userOperator.GetTeams()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"teams": teams,
+		})
 	}
 }

@@ -63,10 +63,12 @@ func (s *Server) setUpRoutes() {
 		handlers.LoginHandlerGET(s.UserOperator))
 
 	s.router.POST("/create-team", handlers.CreateTeamHandler(s.UserOperator))
+	s.router.GET("/get-teams", handlers.GetTeamsHandler(s.UserOperator))
 
 	s.router.POST("/role/login", handlers.LoginHandlerPOST(s.UserOperator))
 
 	s.router.GET("/role/login-leader", handlers.LoginLeaderHandlerGET(s.UserOperator))
+	s.router.GET("/role/login-player", handlers.LoginPlayerHandlerGET(s.UserOperator))
 
 	s.router.GET("/ws/admin", handlers.AdminWebSocketHandler(s.UserOperator))
 	s.router.GET("/ws/player", handlers.ClientWebSocketHandler(s.UserOperator))

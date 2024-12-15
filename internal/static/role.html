@@ -24,14 +24,13 @@
             event.preventDefault();
             window.location.href = '/role/login'
         });
-
         document.getElementById('guestButton').addEventListener('click', function(event) {
             event.preventDefault();
-            window.location.href = '/role/player-panel';
+            window.location.href = '/role/login-player';
         });
         document.getElementById('leaderButton').addEventListener('click', function(event) {
             event.preventDefault();
-            window.location.href = '/role/login-leader'; // TODO: пока так, нужно потом добавить панель и для него
+            window.location.href = '/role/login-leader';
         });
     </script>
 

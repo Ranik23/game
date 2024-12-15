@@ -4,58 +4,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="WebSocket Admin Panel for managing users and sending messages.">
+  <meta name="description" content="WebSocket Admin Panel for managing teams and sending messages.">
   <title>WebSocket Admin Panel</title>
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-light">
 
-  <header class="bg-primary text-white p-4">
-    <div class="container">
-      <h1 class="mb-0">WebSocket Admin Panel</h1>
+  <!-- Header -->
+  <header class="bg-primary text-white py-2 px-3">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <h1 class="h4 mb-0">WebSocket Admin Panel</h1>
+      <!-- Кнопка Logout с красным фоном -->
+      <form action="/role/logout" method="GET">
+        <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+      </form>
     </div>
   </header>
 
-  <main class="container mt-5">
+  <!-- Main Content -->
+  <main class="container my-4">
     <div class="row">
-      <aside class="col-md-4">
-        <h2>Список игроков</h2>
-        <ul id="playersList" class="list-group">
-        </ul>
-      </aside>
-
-      <div class="col-md-8">
+      <!-- Список команд слева -->
+      <div class="col-md-6">
         <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Управление сообщениями</h5>
-            <form id="messageForm">
-              <div class="form-group">
-                <label for="messageInput">Сообщение</label>
-                <textarea class="form-control" id="messageInput" rows="3" required></textarea>
-              </div>
-              <button type="submit" class="btn btn-primary">Отправить сообщение</button>
-            </form>
+          <div class="card-header bg-primary text-white text-center">
+            <h2 class="h5 mb-0">Список команд</h2>
           </div>
+          <ul class="list-group list-group-flush">
+            <!-- Пример команды -->
+            <li class="list-group-item d-flex align-items-center">
+              <span class="me-auto">Команда 1</span>
+              <div>
+                <button class="btn btn-sm btn-success me-2">Принять</button>
+                <button class="btn btn-sm btn-danger">Удалить</button>
+              </div>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+              <span class="me-auto">Команда 2</span>
+              <div>
+                <button class="btn btn-sm btn-success me-2">Принять</button>
+                <button class="btn btn-sm btn-danger">Удалить</button>
+              </div>
+            </li>
+            <!-- Динамические элементы добавляются через JS -->
+          </ul>
         </div>
       </div>
     </div>
   </main>
 
-  <footer class="bg-dark text-white text-center py-3 mt-5 mt-auto">
-    <p>&copy; 2024 Ваше Имя. Все права защищены.</p>
-  </footer>
-
-  <!-- Logout Button -->
-  <div class="container mt-3">
-    <form action="/role/logout" method="GET">
-      <button type="submit" class="btn btn-danger">Logout</button>
-    </form>
-  </div>
-
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/static/admin-panel.js" defer></script>
 </body>
 
