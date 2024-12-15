@@ -38,13 +38,13 @@ func LeaderWebSocketHanlder(userOperator usecase.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		team, err := userOperator.CreateTeam()
-		if err != nil {
-			log.Println("Failed to create team:", err)
-			return
-		}
+		// team, err := userOperator.CreateTeam()
+		// if err != nil {
+		// 	log.Println("Failed to create team:", err)
+		// 	return
+		// }
 
-		leader := models.NewLeader("", team)
+		leader := models.NewLeader("", nil)
 
 		go leader.Run(conn)
 	}

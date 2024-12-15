@@ -24,6 +24,7 @@ var (
 	ErrPlayerNotFound     = errors.New("player not found")
 	ErrLoginNotFound      = errors.New("login not found")
 	ErrAdminIsAlreadySet  = errors.New("admin is set already")
+	ErrTeamAlreadyExists  = errors.New("team already exists")
 )
 
 const (
@@ -42,7 +43,7 @@ type UseCase interface {
 	GetTeams()   ([]models.Team, error)
 	AddLoginInfo(login, password string) error
 	CheckLoginInfo(login string, password string) error
-	CreateTeam() (*models.Team, error)
+	CreateTeam(teamName string) (*models.Team, error)
 	CountTeams() (int, error)
 }
 
@@ -240,8 +241,21 @@ func (uc *useCaseImpl) CheckLoginInfo(login, password string) error {
 	// И ВОЗМОЖНО НУЖНО СПУСТИТЬ ЭТУ ФУНКЦИЮ ВНИЗ И ПОСТАВИТЬ ЗАГЛУШКУ НА ВСЕГДА NIL, ЧТОБЫ НЕ УРОДОВАТЬ USECASE
 }
 
-func (uc *useCaseImpl) CreateTeam() (*models.Team, error) {
-	// TODO
+func (uc *useCaseImpl) CreateTeam(teamName string) (*models.Team, error) {
+	uc.mutex.Lock()
+	defer uc.mutex.Unlock()
+
+	for _, team := range uc.Admin.Teams {
+		if team.Name == teamName {
+			uc.logger.Warn("Team already exists", "team", teamName)
+			return nil, ErrTeamAlreadyExists
+		}
+	}
+
+	uc.Admin.Teams = append(uc.Admin.Teams, &models.Team{
+		Name: teamName,
+	})
+
 	return nil, nil
 }
 

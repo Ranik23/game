@@ -38,7 +38,6 @@ func LoginHandlerGET(userOperator usecase.UseCase) gin.HandlerFunc {
 		g.HTML(http.StatusOK, "login.html", gin.H{})
 	}
 }
-
 func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Структура для входных данных
@@ -85,8 +84,52 @@ func LoginHandlerPOST(userOperator usecase.UseCase) gin.HandlerFunc {
 	}
 }
 
+func LoginLeaderHandlerGET(userOperator usecase.UseCase) gin.HandlerFunc {
+	return func(g *gin.Context) {
+		g.HTML(http.StatusOK, "login-leader.html", gin.H{})
+	}
+}
+
+func CreateTeamHandler(userOperator usecase.UseCase) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var loginData struct {
+			Username string
+			TeamName string
+		}
+
+		if err := c.ShouldBindJSON(&loginData); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "invalid_request",
+			})
+			return
+		}
+
+		username := loginData.Username
+		teamName := loginData.TeamName
+
+		userOperator.CreateTeam(teamName)
+
+		session := sessions.Default(c)
+		session.Set("leader_login", true)
+		if err := session.Save(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "failed_to_save_session",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message":  "team created",
+			"redirect": "/role/leader-panel", 
+			"username": username, 
+			"teamName": teamName,
+		})
+	}
+}
+
+
 func LeaderPanelHanlder() gin.HandlerFunc {
-	return func(g *gin.Context) { 
+	return func(g *gin.Context) {
 		g.HTML(http.StatusOK, "leader-panel.html", gin.H{})
 	}
 }
