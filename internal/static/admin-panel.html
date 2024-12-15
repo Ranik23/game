@@ -1,64 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="WebSocket Admin Panel for managing teams and sending messages.">
-  <title>WebSocket Admin Panel</title>
-
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <!-- Подключение Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Подключение Font Awesome для иконок -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .sidebar {
+            background-color: white;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid #dee2e6;
+        }
+        .team-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .team-item:hover {
+            background-color: #f8f9fa;
+        }
+        .team-item span {
+            font-size: 16px;
+        }
+        .team-item button {
+            margin-left: 10px;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .custom-range {
+            position: relative;
+            width: 100%;
+            height: 12px; /* Увеличенная толщина ползунка */
+            background: #dee2e6;
+            border-radius: 6px; /* Скругление для толстого ползунка */
+            outline: none;
+        }
+        .custom-range-progress {
+            position: absolute;
+            height: 100%;
+            background: #0d6efd;
+            border-radius: 6px; /* Скругление для толстого ползунка */
+            top: 0;
+            left: 0;
+        }
+        .custom-range-thumb {
+            position: absolute;
+            width: 24px; /* Увеличенный размер ползунка */
+            height: 24px; /* Увеличенный размер ползунка */
+            background-color: #0d6efd;
+            border-radius: 50%;
+            top: -6px; /* Центрирование ползунка */
+            transform: translateX(-50%);
+            cursor: pointer;
+        }
+        .logout-btn {
+            background-color: #dc3545; /* Красный цвет */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .logout-btn:hover {
+            background-color: #c82333; /* Темно-красный цвет при наведении */
+        }
+        .start-game-btn {
+            background-color: #28a745; /* Зеленый цвет */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left: 10px; /* Отступ между кнопками */
+        }
+        .start-game-btn:hover {
+            background-color: #218838; /* Темно-зеленый цвет при наведении */
+        }
+    </style>
 </head>
-
-<body class="bg-light">
-
-  <!-- Header -->
-  <header class="bg-primary text-white py-2 px-3">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-      <h1 class="h4 mb-0">WebSocket Admin Panel</h1>
-      <!-- Кнопка Logout с красным фоном -->
-      <form action="/role/logout" method="GET">
-        <button type="submit" class="btn btn-danger btn-sm">Logout</button>
-      </form>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="container my-4">
-    <div class="row">
-      <!-- Список команд слева -->
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header bg-primary text-white text-center">
-            <h2 class="h5 mb-0">Список команд</h2>
-          </div>
-          <ul class="list-group list-group-flush">
-            <!-- Пример команды -->
-            <li class="list-group-item d-flex align-items-center">
-              <span class="me-auto">Команда 1</span>
-              <div>
-                <button class="btn btn-sm btn-success me-2">Принять</button>
-                <button class="btn btn-sm btn-danger">Удалить</button>
-              </div>
-            </li>
-            <li class="list-group-item d-flex align-items-center">
-              <span class="me-auto">Команда 2</span>
-              <div>
-                <button class="btn btn-sm btn-success me-2">Принять</button>
-                <button class="btn btn-sm btn-danger">Удалить</button>
-              </div>
-            </li>
-            <!-- Динамические элементы добавляются через JS -->
-          </ul>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>Admin Panel</h1>
+        <div>
+            <button class="btn btn-light btn-sm start-game-btn" onclick="startGame()">
+                <i class="fas fa-play"></i> Start Game
+            </button>
+            <button class="btn btn-light btn-sm logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
-      </div>
     </div>
-  </main>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/static/admin-panel.js" defer></script>
+    <!-- Основной контент -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="teams-list">
+                    <div class="team-item">
+                        <span>Team 1</span>
+                        <div>
+                            <button class="btn btn-primary btn-sm" onclick="acceptTeam(this)">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTeam(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="team-item">
+                        <span>Team 2</span>
+                        <div>
+                            <button class="btn btn-primary btn-sm" onclick="acceptTeam(this)">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTeam(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="team-item">
+                        <span>Team 3</span>
+                        <div>
+                            <button class="btn btn-primary btn-sm" onclick="acceptTeam(this)">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTeam(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Основной контент -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <h2 class="mb-4">Controls</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="ticks-slider" class="form-label">Ticks (0-16):</label>
+                        <div class="custom-range" id="ticks-slider">
+                            <div class="custom-range-progress" id="ticks-progress"></div>
+                            <div class="custom-range-thumb" id="ticks-thumb"></div>
+                        </div>
+                        <p class="mt-2">Current Ticks: <span id="ticks-value">8</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="constant-slider" class="form-label">Constant:</label>
+                        <div class="custom-range" id="constant-slider">
+                            <div class="custom-range-progress" id="constant-progress"></div>
+                            <div class="custom-range-thumb" id="constant-thumb"></div>
+                        </div>
+                        <p class="mt-2">Current Constant: <span id="constant-value">50</span></p>
+                    </div>
+                </div>
+                <div class="d-grid mt-4">
+                    <button class="btn btn-primary" onclick="saveValues()">Save Values</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение Bootstrap JS и Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Обновление значений ползунков
+        const ticksSlider = document.getElementById('ticks-slider');
+        const constantSlider = document.getElementById('constant-slider');
+        const ticksValue = document.getElementById('ticks-value');
+        const constantValue = document.getElementById('constant-value');
+        const ticksProgress = document.getElementById('ticks-progress');
+        const constantProgress = document.getElementById('constant-progress');
+        const ticksThumb = document.getElementById('ticks-thumb');
+        const constantThumb = document.getElementById('constant-thumb');
+
+        let ticks = 8;
+        let constant = 50;
+
+        // Функция для обновления ползунка
+        function updateSlider(slider, progress, thumb, value, min, max) {
+            const percent = ((value - min) / (max - min)) * 100;
+            progress.style.width = `${percent}%`;
+            thumb.style.left = `${percent}%`;
+        }
+
+        // Инициализация ползунков
+        updateSlider(ticksSlider, ticksProgress, ticksThumb, ticks, 0, 16);
+        updateSlider(constantSlider, constantProgress, constantThumb, constant, 0, 100);
+
+        // Обработчики событий для плавного перемещения
+        let isDraggingTicks = false;
+        let isDraggingConstant = false;
+
+        ticksSlider.addEventListener('mousedown', () => {
+            isDraggingTicks = true;
+        });
+
+        constantSlider.addEventListener('mousedown', () => {
+            isDraggingConstant = true;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDraggingTicks = false;
+            isDraggingConstant = false;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingTicks) {
+                const rect = ticksSlider.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                ticks = Math.round((x / rect.width) * 16);
+                ticks = Math.max(0, Math.min(ticks, 16));
+                ticksValue.textContent = ticks;
+                updateSlider(ticksSlider, ticksProgress, ticksThumb, ticks, 0, 16);
+            }
+
+            if (isDraggingConstant) {
+                const rect = constantSlider.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                constant = Math.round((x / rect.width) * 100);
+                constant = Math.max(0, Math.min(constant, 100));
+                constantValue.textContent = constant;
+                updateSlider(constantSlider, constantProgress, constantThumb, constant, 0, 100);
+            }
+        });
+
+        // Сохранение значений
+        function saveValues() {
+            alert(`Values saved!\nTicks: ${ticks}\nConstant: ${constant}`);
+            // Здесь можно добавить логику для сохранения значений на сервере
+        }
+
+        // Пример функций для кнопок
+        function acceptTeam(button) {
+            const teamElement = button.closest('.team-item');
+            alert(`Team ${teamElement.querySelector('span').textContent} accepted!`);
+            // Здесь можно добавить логику для обработки принятия команды
+        }
+
+        function deleteTeam(button) {
+            const teamElement = button.closest('.team-item');
+            teamElement.remove();
+            alert(`Team ${teamElement.querySelector('span').textContent} deleted!`);
+            // Здесь можно добавить логику для обработки удаления команды
+        }
+
+        function logout() {
+            alert('Logged out!');
+            // Здесь можно добавить логику для выхода из панели администратора
+        }
+
+        function startGame() {
+            alert('Game started!');
+            // Здесь можно добавить логику для запуска игры
+        }
+    </script>
 </body>
-
 </html>
